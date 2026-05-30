@@ -87,8 +87,20 @@ The package uses semantic versions.
 Services should reject unsupported contract versions with
 `UNSUPPORTED_CONTRACT_VERSION` and the `VALIDATION` category.
 
-## Test
+## Testing And Coverage
+
+Run the unit tests with either command:
 
 ```sh
+node --test
 npm test
 ```
+
+View the built-in coverage report in the terminal:
+
+```sh
+node --experimental-test-coverage --test
+npm run coverage
+```
+
+The coverage command uses Node's built-in test runner and prints a text report. If later tooling writes HTML, LCOV, TAP, JUnit, or build output, those generated paths are ignored by `.gitignore`.
