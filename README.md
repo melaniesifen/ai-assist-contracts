@@ -11,14 +11,18 @@ same stable vocabulary without installing a schema runtime.
 Included contracts:
 
 - Tenant and user identity reference fields.
+- Product credential authentication error refs.
+- Contract version refs and supported-version validation helpers.
 - Stable cross-service error categories and safe error envelopes.
+- HTTP command request/response envelope refs for state-changing APIs.
 - Context modes, consent statuses, context source types, trust levels, resource
   refs, provenance helpers, and normalized context validation.
 - Transport-neutral `SessionEvent` envelope and MVP payload validators.
 - Short-lived `SessionSecrets` status refs and default TTL constants.
 - Proposed action types, statuses, terminal status helpers, refs, and default
-  TTL constants.
+  TTL constants, plus shared status transition validation.
 - Provider and connector normalized response and error categories.
+- Metadata-only logging field policy and log-event validation helpers.
 - Shared validation helpers for service boundary checks.
 
 Not included:
@@ -86,6 +90,11 @@ The package uses semantic versions.
 
 Services should reject unsupported contract versions with
 `UNSUPPORTED_CONTRACT_VERSION` and the `VALIDATION` category.
+
+Breaking contract changes require a coordinated rollout note before adoption.
+At minimum, the note must identify affected repos, old and new versions,
+backward-compatibility defaults, migration order, service deployment order,
+rollback plan, and compatibility fixture updates.
 
 ## Task Breakdown
 

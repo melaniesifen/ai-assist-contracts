@@ -7,14 +7,18 @@
   "exports": {
     ".": "./src/index.js",
     "./actions": "./src/actions.js",
+    "./auth": "./src/auth.js",
+    "./commands": "./src/commands.js",
     "./connectors": "./src/connectors.js",
     "./context": "./src/context.js",
     "./errors": "./src/errors.js",
     "./events": "./src/events.js",
     "./identity": "./src/identity.js",
+    "./logging": "./src/logging.js",
     "./providers": "./src/providers.js",
     "./secrets": "./src/secrets.js",
-    "./validation": "./src/validation.js"
+    "./validation": "./src/validation.js",
+    "./versioning": "./src/versioning.js"
   },
   "files": [
     "src",

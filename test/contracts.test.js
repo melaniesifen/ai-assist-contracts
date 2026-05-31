@@ -6,10 +6,15 @@ import {
   CONNECTOR_OPERATIONS,
   CONNECTOR_RESPONSE_STATUSES,
   CONNECTORS,
+  CONTRACT_VERSION,
   CONTEXT_MODES,
   CONTEXT_SOURCE_TYPES,
   CONTEXT_TRUST_LEVELS,
   ERROR_CATEGORIES,
+  HTTP_COMMAND_RESPONSE_STATUSES,
+  HTTP_COMMAND_TYPES,
+  LOG_STATUS_VALUES,
+  METADATA_LOG_FIELDS,
   MODEL_PROVIDERS,
   PROPOSED_ACTION_STATUSES,
   PROPOSED_ACTION_TYPES,
@@ -17,12 +22,20 @@ import {
   PROVIDER_RESPONSE_STATUSES,
   SESSION_EVENT_TYPES,
   SESSION_SECRET_STATUSES,
+  STANDARD_ERROR_CODES,
   createConnectorError,
   createConnectorResponse,
   createContractError,
+  createUnsupportedContractVersionError,
   createActionTargetRange,
+  createActionTargetAnchor,
+  createContractVersionRef,
+  createHttpCommandRequest,
+  createHttpCommandResponse,
   createIdentityScope,
+  createMetadataLogEvent,
   createNormalizedContext,
+  createProductCredentialError,
   createProviderError,
   createProviderResponse,
   createProposedActionRef,
@@ -30,16 +43,24 @@ import {
   createResourceRef,
   createSessionEvent,
   createSessionSecretStatusRef,
+  isSupportedContractVersion,
+  canTransitionProposedActionStatus,
   isMvpContextMode,
   isTerminalProposedActionStatus,
+  validateSupportedContractVersion,
+  validateHttpCommandRequest,
+  validateHttpCommandResponse,
   validateConnectorResponse,
   validateContractError,
   validateActionTargetRange,
   validateIdentityScope,
+  validateMetadataLogEvent,
   validateNormalizedContext,
   validateProviderResponse,
   validateProposedActionRef,
+  validateProposedActionStatusTransition,
   validateSessionEvent,
+  validateSessionEventPayload,
   validateSessionSecretStatusRef
 } from "../src/index.js";
 
@@ -88,6 +109,53 @@ test("validates safe contract error envelope", () => {
     validateContractError({ ...error, category: "authz" }).issues[0].code,
     "enum"
   );
+});
+
+test("validates contract version refs and unsupported versions", () => {
+  const versionRef = createContractVersionRef();
+
+  assert.deepEqual(versionRef, {
+    major: CONTRACT_VERSION.MAJOR,
+    minor: CONTRACT_VERSION.MINOR,
+    patch: CONTRACT_VERSION.PATCH
+  });
+  assert.equal(validateSupportedContractVersion(versionRef).valid, true);
+  assert.equal(isSupportedContractVersion({ ...versionRef, major: 9 }), false);
+
+  const invalid = validateSupportedContractVersion({ ...versionRef, major: 9 });
+  assert.equal(invalid.valid, false);
+  assert.equal(invalid.issues[0].code, "unsupported");
+
+  const error = createUnsupportedContractVersionError();
+  assert.equal(error.code, STANDARD_ERROR_CODES.UNSUPPORTED_CONTRACT_VERSION);
+  assert.equal(error.category, ERROR_CATEGORIES.VALIDATION);
+  assert.equal(validateContractError(error).valid, true);
+});
+
+test("creates distinct typed product credential errors", () => {
+  const malformed = createProductCredentialError({
+    kind: "MALFORMED",
+    message: "Credential header is malformed."
+  });
+
+  assert.equal(malformed.code, STANDARD_ERROR_CODES.MALFORMED_PRODUCT_CREDENTIAL);
+  assert.equal(malformed.category, ERROR_CATEGORIES.AUTHENTICATION);
+  assert.equal(malformed.httpStatus, 400);
+  assert.equal(validateContractError(malformed).valid, true);
+
+  const expired = createProductCredentialError({
+    kind: "EXPIRED",
+    message: "Product session expired."
+  });
+  assert.equal(expired.code, STANDARD_ERROR_CODES.AUTHENTICATION_EXPIRED);
+  assert.equal(expired.httpStatus, 401);
+
+  const unknown = createProductCredentialError({
+    kind: "UNKNOWN",
+    message: "Unknown kind."
+  });
+  assert.equal(unknown.code, STANDARD_ERROR_CODES.CONTRACT_VALIDATION_FAILED);
+  assert.equal(unknown.category, ERROR_CATEGORIES.VALIDATION);
 });
 
 test("builds and validates normalized context with provenance", () => {
@@ -169,6 +237,148 @@ test("validates session event envelope and typed payloads", () => {
   assert.equal(invalid.issues[0].field, "payload.status");
 });
 
+test("validates all session event payload variants", () => {
+  assert.equal(
+    validateSessionEventPayload(SESSION_EVENT_TYPES.ASSISTANT_DELTA, {
+      messageId: "msg_01",
+      delta: "",
+      index: 0
+    }).valid,
+    true
+  );
+  assert.equal(
+    validateSessionEventPayload(SESSION_EVENT_TYPES.ASSISTANT_FINAL, {
+      messageId: "msg_01",
+      finishReason: "stop"
+    }).valid,
+    true
+  );
+  assert.equal(
+    validateSessionEventPayload(SESSION_EVENT_TYPES.PROGRESS, {
+      stage: "provider.call",
+      status: "in_progress",
+      messageCode: "PROVIDER_CALL"
+    }).valid,
+    true
+  );
+  assert.equal(
+    validateSessionEventPayload(SESSION_EVENT_TYPES.ERROR, {
+      errorCode: "PROVIDER_TIMEOUT",
+      category: ERROR_CATEGORIES.DEPENDENCY,
+      retryable: true,
+      message: "Provider request timed out."
+    }).valid,
+    true
+  );
+  assert.equal(validateSessionEventPayload("unknown", {}).issues[0].field, "type");
+  assert.equal(validateSessionEvent("not-event").issues[0].field, "event");
+  assert.equal(
+    validateSessionEvent({
+      type: "unknown",
+      payload: {}
+    }).issues.some((item) => item.field === "type"),
+    true
+  );
+});
+
+test("validates HTTP command request and response envelopes", () => {
+  const identityScope = createIdentityScope({
+    tenantId: "tenant_01",
+    userId: "user_01",
+    authSubject: "sub_01",
+    requestId: "req_01",
+    correlationId: "corr_01"
+  });
+  const command = createHttpCommandRequest({
+    contractVersion: createContractVersionRef(),
+    commandId: "cmd_01",
+    commandType: HTTP_COMMAND_TYPES.CREATE_ASSISTANT_COMMAND,
+    identityScope,
+    payload: {
+      sessionId: "session_01"
+    }
+  });
+
+  assert.equal(validateHttpCommandRequest(command).valid, true);
+  assert.equal(validateHttpCommandRequest("bad").issues[0].field, "httpCommandRequest");
+  assert.equal(
+    validateHttpCommandRequest({
+      ...command,
+      contractVersion: { major: 9, minor: 0, patch: 0 }
+    }).issues.some((item) => item.field === "contractVersion"),
+    true
+  );
+  assert.equal(
+    validateHttpCommandRequest({
+      ...command,
+      commandType: "unknown"
+    }).issues.some((item) => item.field === "commandType"),
+    true
+  );
+  assert.equal(
+    validateHttpCommandRequest({
+      ...command,
+      commandType: HTTP_COMMAND_TYPES.APPLY_ACTION
+    }).issues.some((item) => item.field === "idempotencyKey"),
+    true
+  );
+  assert.equal(
+    validateHttpCommandRequest({
+      ...command,
+      commandType: HTTP_COMMAND_TYPES.APPLY_ACTION,
+      idempotencyKey: "idem_01"
+    }).valid,
+    true
+  );
+
+  const response = createHttpCommandResponse({
+    contractVersion: createContractVersionRef(),
+    requestId: "req_01",
+    correlationId: "corr_01",
+    commandId: "cmd_01",
+    commandType: HTTP_COMMAND_TYPES.CREATE_ASSISTANT_COMMAND,
+    status: HTTP_COMMAND_RESPONSE_STATUSES.COMPLETED,
+    result: { accepted: true }
+  });
+
+  assert.equal(validateHttpCommandResponse(response).valid, true);
+  assert.equal(validateHttpCommandResponse("bad").issues[0].field, "httpCommandResponse");
+  assert.equal(
+    validateHttpCommandResponse({ ...response, commandType: "unknown" }).issues.some(
+      (item) => item.field === "commandType"
+    ),
+    true
+  );
+  assert.equal(
+    validateHttpCommandResponse({ ...response, status: "done" }).issues.some(
+      (item) => item.field === "status"
+    ),
+    true
+  );
+  assert.equal(
+    validateHttpCommandResponse({
+      ...response,
+      error: createUnsupportedContractVersionError()
+    }).issues.some((item) => item.field === "error"),
+    true
+  );
+
+  const rejected = createHttpCommandResponse({
+    ...response,
+    status: HTTP_COMMAND_RESPONSE_STATUSES.REJECTED,
+    result: undefined,
+    error: createUnsupportedContractVersionError()
+  });
+
+  assert.equal(validateHttpCommandResponse(rejected).valid, true);
+  assert.equal(
+    validateHttpCommandResponse({ ...rejected, error: undefined }).issues.some(
+      (item) => item.field === "error"
+    ),
+    true
+  );
+});
+
 test("validates action.proposed events with full resource references", () => {
   const event = createSessionEvent({
     eventId: "evt_02",
@@ -227,6 +437,14 @@ test("validates proposed action refs and terminal status helpers", () => {
   assert.equal(validateProposedActionRef(action).valid, true);
   assert.equal(isTerminalProposedActionStatus(PROPOSED_ACTION_STATUSES.PROPOSED), false);
   assert.equal(isTerminalProposedActionStatus(PROPOSED_ACTION_STATUSES.CONFLICTED), true);
+  assert.equal(
+    canTransitionProposedActionStatus(
+      PROPOSED_ACTION_STATUSES.PROPOSED,
+      PROPOSED_ACTION_STATUSES.REJECTED
+    ),
+    true
+  );
+  assert.equal(canTransitionProposedActionStatus("bad", PROPOSED_ACTION_STATUSES.REJECTED), false);
 
   const invalid = validateProposedActionRef({
     ...action,
@@ -246,6 +464,44 @@ test("validates proposed action refs and terminal status helpers", () => {
   const reversedRange = validateActionTargetRange({ start: 10, end: 1 });
   assert.equal(reversedRange.valid, false);
   assert.equal(reversedRange.issues[0].field, "targetRange.end");
+
+  const anchoredAction = createProposedActionRef({
+    ...action,
+    targetRange: undefined,
+    targetAnchor: createActionTargetAnchor({
+      connector: CONNECTORS.GOOGLE_DOCS,
+      anchorId: "anchor_01",
+      resourceRevision: "rev_01"
+    })
+  });
+  assert.equal(validateProposedActionRef(anchoredAction).valid, true);
+  assert.equal(validateActionTargetRange("bad").issues[0].field, "targetRange");
+
+  assert.equal(
+    validateProposedActionStatusTransition({
+      fromStatus: PROPOSED_ACTION_STATUSES.PROPOSED,
+      toStatus: PROPOSED_ACTION_STATUSES.APPROVED,
+      expiresAt: LATER,
+      now: NOW
+    }).valid,
+    true
+  );
+  assert.equal(
+    validateProposedActionStatusTransition({
+      fromStatus: PROPOSED_ACTION_STATUSES.APPLIED,
+      toStatus: PROPOSED_ACTION_STATUSES.APPROVED
+    }).issues.some((item) => item.field === "toStatus"),
+    true
+  );
+  assert.equal(
+    validateProposedActionStatusTransition({
+      fromStatus: PROPOSED_ACTION_STATUSES.PROPOSED,
+      toStatus: PROPOSED_ACTION_STATUSES.APPROVED,
+      expiresAt: NOW,
+      now: LATER
+    }).issues.some((item) => item.field === "expiresAt"),
+    true
+  );
 });
 
 test("validates session secret metadata without raw secret material", () => {
@@ -382,4 +638,51 @@ test("validates connector response and normalized connector error", () => {
     }).issues.some((item) => item.field === "error"),
     true
   );
+});
+
+test("validates metadata-only log events", () => {
+  const event = createMetadataLogEvent({
+    requestId: "req_01",
+    correlationId: "corr_01",
+    tenantId: "tenant_01",
+    userId: "user_01",
+    service: "orchestration",
+    route: "/commands",
+    operation: HTTP_COMMAND_TYPES.CREATE_ASSISTANT_COMMAND,
+    status: LOG_STATUS_VALUES.SUCCEEDED,
+    errorCategory: ERROR_CATEGORIES.DEPENDENCY,
+    provider: MODEL_PROVIDERS.OPENAI,
+    inputTokens: 10,
+    outputTokens: 20,
+    totalTokens: 30,
+    costEstimateMicroUsd: 100
+  });
+
+  assert.equal(METADATA_LOG_FIELDS.REQUEST_ID, "requestId");
+  assert.equal(validateMetadataLogEvent(event).valid, true);
+  assert.equal(
+    validateMetadataLogEvent({ ...event, status: "ok" }).issues[0].field,
+    "status"
+  );
+  assert.equal(
+    validateMetadataLogEvent({ ...event, provider: "unknown" }).issues[0].field,
+    "provider"
+  );
+  assert.equal(
+    validateMetadataLogEvent({ ...event, errorCategory: "dependency" }).issues[0].field,
+    "errorCategory"
+  );
+  assert.equal(
+    validateMetadataLogEvent({ ...event, prompt: "raw prompt text" }).issues[0].field,
+    "prompt"
+  );
+  assert.equal(
+    validateMetadataLogEvent({ ...event, providerKey: "sk-test" }).issues[0].field,
+    "providerKey"
+  );
+  assert.equal(
+    validateMetadataLogEvent({ ...event, arbitraryField: "value" }).issues[0].field,
+    "arbitraryField"
+  );
+  assert.equal(validateMetadataLogEvent("bad").issues[0].field, "metadataLogEvent");
 });

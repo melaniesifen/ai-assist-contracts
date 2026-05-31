@@ -42,8 +42,80 @@ export const TERMINAL_PROPOSED_ACTION_STATUSES = Object.freeze([
 
 export const TERMINAL_PROPOSED_ACTION_STATUS_SET = new Set(TERMINAL_PROPOSED_ACTION_STATUSES);
 
+export const PROPOSED_ACTION_STATUS_TRANSITIONS = Object.freeze({
+  [PROPOSED_ACTION_STATUSES.PROPOSED]: Object.freeze([
+    PROPOSED_ACTION_STATUSES.APPROVED,
+    PROPOSED_ACTION_STATUSES.REJECTED,
+    PROPOSED_ACTION_STATUSES.EXPIRED
+  ]),
+  [PROPOSED_ACTION_STATUSES.APPROVED]: Object.freeze([
+    PROPOSED_ACTION_STATUSES.APPLIED,
+    PROPOSED_ACTION_STATUSES.CONFLICTED,
+    PROPOSED_ACTION_STATUSES.FAILED,
+    PROPOSED_ACTION_STATUSES.EXPIRED
+  ]),
+  [PROPOSED_ACTION_STATUSES.APPLIED]: Object.freeze([]),
+  [PROPOSED_ACTION_STATUSES.REJECTED]: Object.freeze([]),
+  [PROPOSED_ACTION_STATUSES.EXPIRED]: Object.freeze([]),
+  [PROPOSED_ACTION_STATUSES.CONFLICTED]: Object.freeze([]),
+  [PROPOSED_ACTION_STATUSES.FAILED]: Object.freeze([])
+});
+
 export function isTerminalProposedActionStatus(status) {
   return TERMINAL_PROPOSED_ACTION_STATUS_SET.has(status);
+}
+
+export function canTransitionProposedActionStatus(fromStatus, toStatus) {
+  if (!PROPOSED_ACTION_STATUS_SET.has(fromStatus) || !PROPOSED_ACTION_STATUS_SET.has(toStatus)) {
+    return false;
+  }
+
+  return PROPOSED_ACTION_STATUS_TRANSITIONS[fromStatus].includes(toStatus);
+}
+
+export function validateProposedActionStatusTransition({
+  fromStatus,
+  toStatus,
+  expiresAt,
+  now
+}) {
+  const issues = [
+    ...requireEnum(fromStatus, "fromStatus", PROPOSED_ACTION_STATUS_SET),
+    ...requireEnum(toStatus, "toStatus", PROPOSED_ACTION_STATUS_SET),
+    ...requireString(expiresAt, "expiresAt", { isoTimestamp: true, optional: true }),
+    ...requireString(now, "now", { isoTimestamp: true, optional: true })
+  ];
+
+  if (
+    PROPOSED_ACTION_STATUS_SET.has(fromStatus) &&
+    PROPOSED_ACTION_STATUS_SET.has(toStatus) &&
+    !canTransitionProposedActionStatus(fromStatus, toStatus)
+  ) {
+    issues.push(
+      issue(
+        "toStatus",
+        VALIDATION_ISSUE_CODES.UNSUPPORTED,
+        `cannot transition proposed action from ${fromStatus} to ${toStatus}`
+      )
+    );
+  }
+
+  if (
+    toStatus !== PROPOSED_ACTION_STATUSES.EXPIRED &&
+    expiresAt !== undefined &&
+    now !== undefined &&
+    Date.parse(now) >= Date.parse(expiresAt)
+  ) {
+    issues.push(
+      issue(
+        "expiresAt",
+        VALIDATION_ISSUE_CODES.UNSUPPORTED,
+        "expired actions can only transition to EXPIRED"
+      )
+    );
+  }
+
+  return validationResult(issues);
 }
 
 export function createActionTargetRange({ start, end }) {
