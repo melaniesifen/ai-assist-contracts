@@ -17,45 +17,45 @@ enum ContextMode {
 @documentation("Context source type values shared by connector and orchestration boundaries.")
 enum ContextSourceType {
     @enumValue("client_selection_text")
-    client_selection_text
+    CLIENT_SELECTION_TEXT
 
     @enumValue("connector_selection")
-    connector_selection
+    CONNECTOR_SELECTION
 
     @enumValue("connector_resource_excerpt")
-    connector_resource_excerpt
+    CONNECTOR_RESOURCE_EXCERPT
 
     @enumValue("connector_visible_region")
-    connector_visible_region
+    CONNECTOR_VISIBLE_REGION
 
     @enumValue("connector_workspace_excerpt")
-    connector_workspace_excerpt
+    CONNECTOR_WORKSPACE_EXCERPT
 
     @enumValue("screen_capture")
-    screen_capture
+    SCREEN_CAPTURE
 }
 
 @documentation("Trust level used to separate client-supplied context from connector-verified mutation authority.")
 enum ContextTrustLevel {
     @enumValue("client_supplied")
-    client_supplied
+    CLIENT_SUPPLIED
 
     @enumValue("connector_verified")
-    connector_verified
+    CONNECTOR_VERIFIED
 
     @enumValue("system_verified")
-    system_verified
+    SYSTEM_VERIFIED
 }
 
 enum ConsentGrantStatus {
     @enumValue("active")
-    active
+    ACTIVE
 
     @enumValue("revoked")
-    revoked
+    REVOKED
 
     @enumValue("expired")
-    expired
+    EXPIRED
 }
 
 @documentation("Connector resource reference without raw content.")

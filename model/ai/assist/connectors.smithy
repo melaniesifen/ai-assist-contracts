@@ -10,13 +10,26 @@ enum Connector {
 }
 
 enum ConnectorOperation {
-    ListResources
-    GetResourceMetadata
-    ReadContext
-    ResolveSelection
-    ValidateResourceRevision
-    ValidateMutationTarget
-    ApplyMutation
+    @enumValue("ListResources")
+    LIST_RESOURCES
+
+    @enumValue("GetResourceMetadata")
+    GET_RESOURCE_METADATA
+
+    @enumValue("ReadContext")
+    READ_CONTEXT
+
+    @enumValue("ResolveSelection")
+    RESOLVE_SELECTION
+
+    @enumValue("ValidateResourceRevision")
+    VALIDATE_RESOURCE_REVISION
+
+    @enumValue("ValidateMutationTarget")
+    VALIDATE_MUTATION_TARGET
+
+    @enumValue("ApplyMutation")
+    APPLY_MUTATION
 }
 
 enum ConnectorResponseStatus {

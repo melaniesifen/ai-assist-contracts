@@ -209,7 +209,7 @@ test("uses typed Smithy payload and vocabulary members where generated artifacts
   assertMemberType("secrets.smithy", "SessionSecretStatusRef", "provider", "ModelProvider");
 });
 
-test("documents JS compatibility mapping and Smithy tooling blocker", () => {
+test("documents JS compatibility mapping and Smithy tooling notes", () => {
   const migrationNotes = readFileSync(join(repoRoot, "docs", "smithy-migration.md"), "utf8");
 
   for (const moduleName of [
@@ -229,6 +229,6 @@ test("documents JS compatibility mapping and Smithy tooling blocker", () => {
     assert.match(migrationNotes, new RegExp(moduleName.replace(".", "\\.")));
   }
 
-  assert.match(migrationNotes, /Full Smithy validation and generation are blocked/);
-  assert.match(migrationNotes, /Do not globally install Smithy tooling/);
+  assert.match(migrationNotes, /smithy validate model/);
+  assert.match(migrationNotes, /Generated artifacts are still intentionally blocked/);
 });

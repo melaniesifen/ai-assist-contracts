@@ -29,7 +29,9 @@
   ],
   "scripts": {
     "test": "node --test",
-    "coverage": "node --experimental-test-coverage --test"
+    "coverage": "node --experimental-test-coverage --test",
+    "smithy:validate": "smithy validate model",
+    "smithy:build": "smithy build --config smithy-build.json --output build/smithy"
   },
   "engines": {
     "node": ">=20"

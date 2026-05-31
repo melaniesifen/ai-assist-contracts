@@ -87,13 +87,20 @@ Smithy source files are under `model/ai/assist/`, with `smithy-build.json` as th
 repo-local build entry point. The current local test suite verifies the Smithy
 source inventory and enum-value mapping against the JavaScript bootstrap.
 
-Full Smithy validation and generation are not complete because this repo does
-not yet include a reproducible Smithy CLI, Gradle wrapper, Maven wrapper, or
-declared Smithy dependency set. Do not use generated artifacts until tooling is
-added and validation is actually run.
+The current local validation path uses the Smithy CLI. On macOS, install it with
+Homebrew:
+
+```sh
+brew tap smithy-lang/tap
+brew install smithy-cli
+```
+
+Generated artifacts are written under ignored build output. Do not commit
+generated files until the package publishing and compatibility fixture strategy
+is approved.
 
 See [docs/smithy-migration.md](docs/smithy-migration.md) for the JS mapping,
-generated artifact strategy, and tooling blocker.
+generated artifact strategy, and tooling notes.
 
 ## Versioning Policy
 
@@ -130,6 +137,13 @@ Run the local Smithy source inventory checks with the same test command:
 
 ```sh
 node --test
+```
+
+Validate and build the Smithy source projection with:
+
+```sh
+smithy validate model
+smithy build --config smithy-build.json --output build/smithy
 ```
 
 View the built-in coverage report in the terminal:

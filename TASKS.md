@@ -32,9 +32,9 @@ Sources:
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.
-- [ ] `REPO-002`: Migrate shared contracts to Smithy IDL as the source of truth for service, API, event, error, context, action, connector, and provider models.
+- [x] `REPO-002`: Migrate shared contracts to Smithy IDL as the source of truth for service, API, event, error, context, action, connector, and provider models.
 - [x] `REPO-002`: Define the generated artifacts strategy for OpenAPI, JSON Schema, TypeScript, Python, and Java outputs, generating only artifacts needed by consuming repos.
-- [ ] Migration gate: Do not continue broad new shared-contract feature work until the Smithy migration is completed or explicitly deferred.
+- [x] Migration gate: Do not continue broad new shared-contract feature work until the Smithy migration is completed or explicitly deferred.
 - [x] `ARCH-003`: Add explicit contract version field or negotiation helper where service boundaries need version checks.
 - [x] `ARCH-003`: Add unsupported contract version validation that maps to `UNSUPPORTED_CONTRACT_VERSION`.
 - [x] `ARCH-003`: Add coordinated rollout note requirements for breaking contract changes.
@@ -54,7 +54,7 @@ Sources:
 ## Quality And Release Tasks
 
 - [x] Raise line coverage to at least 95%.
-- [ ] Add generated client/server type strategy if TypeScript or schema generation is selected.
+- [x] Add generated client/server type strategy if TypeScript or schema generation is selected.
 - [ ] Add release/versioning workflow.
 - [ ] Add deployment-style pipeline tasks for schema validation, compatibility checks, package build, and publish dry run.
 - [ ] Publish package to the selected private or public package registry.

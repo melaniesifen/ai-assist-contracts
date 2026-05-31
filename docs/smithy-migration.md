@@ -2,9 +2,14 @@
 
 ## Current State
 
-Smithy source models now live under `model/ai/assist/` and are the migration target for shared platform contracts. The existing JavaScript ESM helpers in `src/` remain the locally runnable compatibility layer until Smithy validation and generated artifacts are available.
+Smithy source models now live under `model/ai/assist/` and are the source of truth for shared platform contracts. The existing JavaScript ESM helpers in `src/` remain the locally runnable compatibility layer until generated artifacts are approved for consuming repos.
 
-Local checks intentionally do not claim full Smithy validation. The parent environment does not currently provide a `smithy` CLI, Gradle wrapper, Maven wrapper, or declared repo-local Smithy dependency set.
+The current validation path uses the Smithy CLI. The repo validates with:
+
+```sh
+smithy validate model
+smithy build --config smithy-build.json --output build/smithy
+```
 
 ## Local Source Inventory
 
@@ -48,12 +53,19 @@ Generate only artifacts required by consuming repos:
 
 Generated artifacts should be written under ignored build output, such as `build/smithy/` or `dist/`, then selectively copied or published through the eventual release workflow. Do not commit generated files until the package publishing and compatibility fixture strategy is approved.
 
-## Tooling Blocker
+## Tooling Notes
 
-Full Smithy validation and generation are blocked until the repo declares reproducible tooling. Feasible options:
+Current local validation uses the Smithy CLI installed through Homebrew:
+
+```sh
+brew tap smithy-lang/tap
+brew install smithy-cli
+```
+
+Generated artifacts are still intentionally blocked until each consuming repo has a concrete need and compatibility strategy. Feasible future reproducible options:
 
 - Add a Gradle wrapper with Smithy dependencies pinned in repo-local build files.
 - Add a Maven wrapper with Smithy dependencies pinned in repo-local build files.
-- Add a documented repo-local Smithy CLI download/cache flow with checksum verification.
+- Add a repo-local Smithy CLI download/cache flow with checksum verification.
 
-Do not globally install Smithy tooling. After a tooling path is approved, the minimum validation command should load `smithy-build.json` and validate every file under `model/`.
+The minimum validation command must load `smithy-build.json` and validate every file under `model/`.
