@@ -1,10 +1,11 @@
 # AI Assist Contracts
 
-Shared ESM contracts for the AI Assist Platform MVP.
+Shared contracts for the AI Assist Platform MVP.
 
-This package is intentionally dependency-light. It uses plain JavaScript objects,
-frozen constants, and built-in validation helpers so service repos can share the
-same stable vocabulary without installing a schema runtime.
+This repo is migrating toward Smithy IDL as the source of truth. Smithy source
+models live under `model/ai/assist/`. The existing ESM package remains the
+dependency-light local compatibility layer until Smithy validation and generated
+artifacts are available.
 
 ## Scope
 
@@ -24,10 +25,12 @@ Included contracts:
 - Provider and connector normalized response and error categories.
 - Metadata-only logging field policy and log-event validation helpers.
 - Shared validation helpers for service boundary checks.
+- Initial Smithy source models for the same MVP contract vocabulary.
 
 Not included:
 
-- Runtime schema generation.
+- Generated Smithy artifacts.
+- Runtime schema generation from Smithy.
 - Persistence adapters.
 - HTTP route handlers.
 - KMS, OAuth, provider, or connector clients.
@@ -78,6 +81,20 @@ Validators return `{ valid, issues }` and do not throw. Each issue has:
 
 Use `assertValid(contractName, result)` when a throwing API is more convenient.
 
+## Smithy Source Models
+
+Smithy source files are under `model/ai/assist/`, with `smithy-build.json` as the
+repo-local build entry point. The current local test suite verifies the Smithy
+source inventory and enum-value mapping against the JavaScript bootstrap.
+
+Full Smithy validation and generation are not complete because this repo does
+not yet include a reproducible Smithy CLI, Gradle wrapper, Maven wrapper, or
+declared Smithy dependency set. Do not use generated artifacts until tooling is
+added and validation is actually run.
+
+See [docs/smithy-migration.md](docs/smithy-migration.md) for the JS mapping,
+generated artifact strategy, and tooling blocker.
+
 ## Versioning Policy
 
 The package uses semantic versions.
@@ -107,6 +124,12 @@ Run the unit tests with either command:
 ```sh
 node --test
 npm test
+```
+
+Run the local Smithy source inventory checks with the same test command:
+
+```sh
+node --test
 ```
 
 View the built-in coverage report in the terminal:

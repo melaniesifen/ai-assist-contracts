@@ -21,6 +21,9 @@
     "./versioning": "./src/versioning.js"
   },
   "files": [
+    "docs",
+    "model",
+    "smithy-build.json",
     "src",
     "README.md"
   ],
