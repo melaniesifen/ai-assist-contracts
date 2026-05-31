@@ -21,3 +21,16 @@
 ## Review Notes
 
 Before committing contract changes, run a code review against cross-repo compatibility: which services consume the field, which fields are required, what defaults exist, and whether unsupported versions fail with typed errors.
+
+## Commit Messages
+
+All commits in this repo must use this format:
+
+```text
+docs/feat/fix/(or another appropriate type): title of change
+
+problem: <description of problem>
+solution: <description of solution>
+impact: <impact of this change>
+reference: <reference to this change in the docs if applicable>
+```

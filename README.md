@@ -87,6 +87,10 @@ The package uses semantic versions.
 Services should reject unsupported contract versions with
 `UNSUPPORTED_CONTRACT_VERSION` and the `VALIDATION` category.
 
+## Task Breakdown
+
+Implementation tasks are tracked in [TASKS.md](TASKS.md). Update the checkboxes there in the same change that implements or verifies a task.
+
 ## Testing And Coverage
 
 Run the unit tests with either command:
