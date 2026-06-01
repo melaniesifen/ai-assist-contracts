@@ -29,6 +29,14 @@ Sources:
 - [x] Document tests and coverage commands in `README.md`.
 - [x] Ignore local prompts, feedback, coverage output, dependencies, and build artifacts.
 
+## Completed Google Docs Vertical Slice Contract Helpers
+
+- [x] `ACTION-001`: Add PR-style `ProposedActionReviewRef` and `ProposedActionTarget` helpers for user-visible edit review cards.
+- [x] `ACTION-003`: Add action decision command payload helpers for approve/reject command bodies.
+- [x] `ACTION-004`: Add minimal apply-action command payload helpers that keep revision/hash authority server-side and require idempotency through the HTTP command envelope.
+- [x] `CTX-005` / `DOCS-001` / `DOCS-002`: Add Google Docs resource-list and read-context result helpers plus fixture coverage for the read/propose/review/apply slice.
+- [x] `PROVIDER-001`: Add structured provider text proposal batch and typed target-hint helpers for provider-neutral proposal output.
+
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.
@@ -46,6 +54,8 @@ Sources:
 - [ ] `CTX-002`: Add full `ContextConsentGrants` contract once context service implements persistence.
 - [ ] `CTX-005`: Add shared connector interface request/response fixtures for list, read, verify, and apply operations.
 - [x] `EVT-001`: Add HTTP command request/response envelope contracts with request and correlation IDs.
+- [x] `ACTION-003`: Add shared action decision command payload helpers for approve/reject commands.
+- [x] `ACTION-004`: Add shared apply-action command payload helpers that identify the action without trusting client-supplied revision/hash facts.
 - [x] `ACTION-002`: Add invalid proposed-action transition validation if lifecycle enforcement remains shared.
 - [ ] `PROVIDER-001`: Add provider adapter interface fixtures for credential validation, generation, streaming, usage, and errors.
 - [ ] `OPS-004`: Add contract fixture and conformance cases for dependency, throttling, KMS, OAuth, connector, and provider error shapes. This repo owns the shared error payload fixtures other services can validate against; infrastructure observability, dashboards, and alerts remain owned by `ai-assist-infra`.
