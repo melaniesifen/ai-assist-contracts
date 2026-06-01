@@ -2,6 +2,7 @@ import {
   enumSet,
   freezeValues,
   issue,
+  requireArray,
   requireEnum,
   requireInteger,
   requireRecord,
@@ -9,12 +10,10 @@ import {
   VALIDATION_ISSUE_CODES,
   validationResult
 } from "./validation.js";
+import { CONNECTOR_SET, CONNECTORS } from "./connector-vocabulary.js";
+import { validateNormalizedContext, validateResourceRef } from "./context.js";
 
-export const CONNECTORS = freezeValues({
-  GOOGLE_DOCS: "google_docs"
-});
-
-export const CONNECTOR_SET = enumSet(CONNECTORS);
+export { CONNECTOR_SET, CONNECTORS };
 
 export const CONNECTOR_OPERATIONS = freezeValues({
   LIST_RESOURCES: "ListResources",
@@ -158,6 +157,67 @@ export function validateConnectorError(error) {
       min: 0
     }),
     ...requireString(error.dependencyStatus, "connectorError.dependencyStatus", { optional: true })
+  );
+
+  return validationResult(issues);
+}
+
+export function createConnectorResourceListResult({
+  resources,
+  nextPageToken
+}) {
+  return {
+    resources,
+    ...(nextPageToken === undefined ? {} : { nextPageToken })
+  };
+}
+
+export function validateConnectorResourceListResult(result, field = "resourceListResult") {
+  const issues = [
+    ...requireRecord(result, field)
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...requireArray(result.resources, `${field}.resources`),
+    ...requireString(result.nextPageToken, `${field}.nextPageToken`, { optional: true })
+  );
+
+  if (Array.isArray(result.resources)) {
+    for (const [index, resource] of result.resources.entries()) {
+      issues.push(...validateResourceRef(resource, `${field}.resources.${index}`).issues);
+    }
+  }
+
+  return validationResult(issues);
+}
+
+export function createConnectorReadContextResult({
+  context,
+  resourceRevision
+}) {
+  return {
+    context,
+    resourceRevision
+  };
+}
+
+export function validateConnectorReadContextResult(result, field = "readContextResult") {
+  const issues = [
+    ...requireRecord(result, field)
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...validateNormalizedContext(result.context).issues.map((item) => ({
+      ...item,
+      field: item.field === "context" ? `${field}.context` : `${field}.context.${item.field}`
+    })),
+    ...requireString(result.resourceRevision, `${field}.resourceRevision`)
   );
 
   return validationResult(issues);

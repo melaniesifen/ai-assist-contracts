@@ -3,6 +3,8 @@ $version: "2"
 namespace ai.assist.connectors
 
 use ai.assist.common#NonNegativeInteger
+use ai.assist.context#NormalizedContext
+use ai.assist.context#ResourceRef
 
 enum Connector {
     @enumValue("google_docs")
@@ -108,4 +110,23 @@ structure ConnectorResponse {
     resourceRevision: String
     result: Document
     error: ConnectorError
+}
+
+list ResourceRefList {
+    member: ResourceRef
+}
+
+structure ConnectorResourceListResult {
+    @required
+    resources: ResourceRefList
+
+    nextPageToken: String
+}
+
+structure ConnectorReadContextResult {
+    @required
+    context: NormalizedContext
+
+    @required
+    resourceRevision: String
 }

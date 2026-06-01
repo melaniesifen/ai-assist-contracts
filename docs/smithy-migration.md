@@ -32,6 +32,7 @@ smithy build --config smithy-build.json --output build/smithy
 | `src/identity.js` | `common.smithy` | `IdentityScope` documents server-derived identity fields. |
 | `src/errors.js` | `common.smithy` | `ErrorCategory`, `StandardErrorCode`, and `ContractError` preserve safe error envelopes. |
 | `src/auth.js` | `auth.smithy` | Product credential error kinds map to safe `ContractError` envelopes. |
+| `src/connector-vocabulary.js` | `connectors.smithy` | Connector enum values are shared by context, action, and connector validators to keep JS compatibility aligned with Smithy `Connector`. |
 | `src/context.js` | `context.smithy` | Context mode, source type, trust level, resource ref, provenance, and normalized context shapes are mirrored. Connector-bearing fields use the Smithy `Connector` enum. |
 | `src/actions.js` | `actions.smithy` | Proposed action enums and refs are mirrored. The current `provider` field identifies the connector/resource provider for write-back and is typed as `Connector` in Smithy. Status transition rules remain JS-only until Smithy validators or service logic own them. |
 | `src/events.js` | `events.smithy` | `SessionEvent` and MVP payload shapes are mirrored. Smithy models payload variants as `SessionEventPayload`; the current JS bootstrap still receives flat payload objects and dispatches by `type`, so generated artifacts need a discriminator mapping before replacing the JS validators. |

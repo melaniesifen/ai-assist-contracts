@@ -206,6 +206,44 @@ test("uses typed Smithy payload and vocabulary members where generated artifacts
   assertMemberType("context.smithy", "NormalizedContext", "provider", "Connector");
   assertMemberType("actions.smithy", "ActionTargetAnchor", "connector", "Connector");
   assertMemberType("actions.smithy", "ProposedActionRef", "provider", "Connector");
+  assertMemberType("actions.smithy", "ProposedActionReviewRef", "resourceRef", "ResourceRef");
+  assertMemberType("actions.smithy", "ProposedActionReviewRef", "target", "ProposedActionTarget");
+  assertUnionContains(
+    "actions.smithy",
+    "ProposedActionTarget",
+    "targetAnchor",
+    "ActionTargetAnchor"
+  );
+  assertUnionContains(
+    "actions.smithy",
+    "ProposedActionTarget",
+    "targetRange",
+    "ActionTargetRange"
+  );
+  assertMemberType(
+    "commands.smithy",
+    "ApplyActionCommandPayload",
+    "actionId",
+    "String"
+  );
+  assertMemberType(
+    "connectors.smithy",
+    "ConnectorReadContextResult",
+    "context",
+    "NormalizedContext"
+  );
+  assertMemberType(
+    "providers.smithy",
+    "ProviderTextProposal",
+    "actionType",
+    "ProposedActionType"
+  );
+  assertMemberType(
+    "providers.smithy",
+    "ProviderTextProposal",
+    "targetHint",
+    "ProviderTextProposalTargetHint"
+  );
   assertMemberType("secrets.smithy", "SessionSecretStatusRef", "provider", "ModelProvider");
 });
 
@@ -217,6 +255,7 @@ test("documents JS compatibility mapping and Smithy tooling notes", () => {
     "src/identity.js",
     "src/errors.js",
     "src/auth.js",
+    "src/connector-vocabulary.js",
     "src/context.js",
     "src/actions.js",
     "src/events.js",

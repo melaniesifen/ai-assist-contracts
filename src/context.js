@@ -8,6 +8,7 @@ import {
   requireString,
   validationResult
 } from "./validation.js";
+import { CONNECTOR_SET } from "./connector-vocabulary.js";
 
 export const CONTEXT_MODES = freezeValues({
   SELECTION: "SELECTION",
@@ -81,7 +82,7 @@ export function validateResourceRef(resourceRef, field = "resourceRef") {
   }
 
   issues.push(
-    ...requireString(resourceRef.connector, `${field}.connector`),
+    ...requireEnum(resourceRef.connector, `${field}.connector`, CONNECTOR_SET),
     ...requireString(resourceRef.resourceId, `${field}.resourceId`),
     ...requireString(resourceRef.resourceType, `${field}.resourceType`),
     ...requireString(resourceRef.displayName, `${field}.displayName`, { optional: true }),
@@ -126,7 +127,7 @@ export function validateProvenance(provenance, field = "provenance") {
   issues.push(
     ...requireEnum(provenance.sourceType, `${field}.sourceType`, CONTEXT_SOURCE_TYPE_SET),
     ...requireEnum(provenance.trustLevel, `${field}.trustLevel`, CONTEXT_TRUST_LEVEL_SET),
-    ...requireString(provenance.connector, `${field}.connector`),
+    ...requireEnum(provenance.connector, `${field}.connector`, CONNECTOR_SET),
     ...requireString(provenance.resourceId, `${field}.resourceId`),
     ...requireString(provenance.resourceVersion, `${field}.resourceVersion`, { optional: true }),
     ...requireString(provenance.capturedAt, `${field}.capturedAt`, { isoTimestamp: true }),
@@ -190,7 +191,7 @@ export function validateNormalizedContext(context) {
     ...requireString(context.tenantId, "tenantId"),
     ...requireString(context.userId, "userId"),
     ...requireString(context.sessionId, "sessionId"),
-    ...requireString(context.provider, "provider"),
+    ...requireEnum(context.provider, "provider", CONNECTOR_SET),
     ...validateResourceRef(context.resourceRef).issues,
     ...requireEnum(context.contextMode, "contextMode", CONTEXT_MODE_SET),
     ...requireEnum(context.sourceType, "sourceType", CONTEXT_SOURCE_TYPE_SET),

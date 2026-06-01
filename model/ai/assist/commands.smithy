@@ -87,3 +87,21 @@ structure HttpCommandResponse {
     result: Document
     error: ContractError
 }
+
+structure ActionDecisionCommandPayload {
+    @required
+    sessionId: String
+
+    @required
+    actionId: String
+
+    reasonCode: String
+}
+
+structure ApplyActionCommandPayload {
+    @required
+    sessionId: String
+
+    @required
+    actionId: String
+}

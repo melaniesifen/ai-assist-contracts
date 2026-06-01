@@ -172,3 +172,58 @@ export function validateHttpCommandResponse(response) {
 
   return validationResult(issues);
 }
+
+export function createActionDecisionCommandPayload({
+  sessionId,
+  actionId,
+  reasonCode
+}) {
+  return {
+    sessionId,
+    actionId,
+    ...(reasonCode === undefined ? {} : { reasonCode })
+  };
+}
+
+export function validateActionDecisionCommandPayload(payload, field = "actionDecisionPayload") {
+  const issues = [
+    ...requireRecord(payload, field)
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...requireString(payload.sessionId, `${field}.sessionId`),
+    ...requireString(payload.actionId, `${field}.actionId`),
+    ...requireString(payload.reasonCode, `${field}.reasonCode`, { optional: true })
+  );
+
+  return validationResult(issues);
+}
+
+export function createApplyActionCommandPayload({
+  sessionId,
+  actionId
+}) {
+  return {
+    sessionId,
+    actionId
+  };
+}
+
+export function validateApplyActionCommandPayload(payload, field = "applyActionPayload") {
+  const issues = [
+    ...requireRecord(payload, field)
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...requireString(payload.sessionId, `${field}.sessionId`),
+    ...requireString(payload.actionId, `${field}.actionId`)
+  );
+
+  return validationResult(issues);
+}

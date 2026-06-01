@@ -9,6 +9,8 @@ import {
   VALIDATION_ISSUE_CODES,
   validationResult
 } from "./validation.js";
+import { CONNECTOR_SET } from "./connector-vocabulary.js";
+import { validateResourceRef } from "./context.js";
 
 export const PROPOSED_ACTION_DEFAULT_TTL_HOURS = 24;
 export const PROPOSED_ACTION_DEFAULT_TTL_SECONDS = PROPOSED_ACTION_DEFAULT_TTL_HOURS * 60 * 60;
@@ -130,6 +132,13 @@ export function createActionTargetAnchor({ connector, anchorId, resourceRevision
   };
 }
 
+export function createProposedActionTarget({ targetAnchor, targetRange }) {
+  return {
+    ...(targetAnchor === undefined ? {} : { targetAnchor }),
+    ...(targetRange === undefined ? {} : { targetRange })
+  };
+}
+
 export function validateActionTargetRange(targetRange, field = "targetRange") {
   const issues = [
     ...requireRecord(targetRange, field)
@@ -169,12 +178,54 @@ export function validateActionTargetAnchor(targetAnchor, field = "targetAnchor")
   }
 
   issues.push(
-    ...requireString(targetAnchor.connector, `${field}.connector`),
+    ...requireEnum(targetAnchor.connector, `${field}.connector`, CONNECTOR_SET),
     ...requireString(targetAnchor.anchorId, `${field}.anchorId`),
     ...requireString(targetAnchor.resourceRevision, `${field}.resourceRevision`, {
       optional: true
     })
   );
+
+  return validationResult(issues);
+}
+
+export function validateProposedActionTarget(target, field = "target") {
+  const issues = [
+    ...requireRecord(target, field)
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  const hasAnchor = target.targetAnchor !== undefined;
+  const hasRange = target.targetRange !== undefined;
+
+  if (!hasAnchor && !hasRange) {
+    issues.push(
+      issue(
+        field,
+        VALIDATION_ISSUE_CODES.REQUIRED,
+        `${field}.targetAnchor or ${field}.targetRange is required`
+      )
+    );
+  }
+
+  if (hasAnchor && hasRange) {
+    issues.push(
+      issue(
+        field,
+        VALIDATION_ISSUE_CODES.UNSUPPORTED,
+        `${field} must include only one target variant`
+      )
+    );
+  }
+
+  if (hasAnchor) {
+    issues.push(...validateActionTargetAnchor(target.targetAnchor, `${field}.targetAnchor`).issues);
+  }
+
+  if (hasRange) {
+    issues.push(...validateActionTargetRange(target.targetRange, `${field}.targetRange`).issues);
+  }
 
   return validationResult(issues);
 }
@@ -230,7 +281,7 @@ export function validateProposedActionRef(action) {
     ...requireString(action.tenantId, "tenantId"),
     ...requireString(action.userId, "userId"),
     ...requireString(action.sessionId, "sessionId"),
-    ...requireString(action.provider, "provider"),
+    ...requireEnum(action.provider, "provider", CONNECTOR_SET),
     ...requireString(action.resourceId, "resourceId"),
     ...requireString(action.resourceRevision, "resourceRevision"),
     ...requireString(action.originalTextHash, "originalTextHash"),
@@ -259,6 +310,74 @@ export function validateProposedActionRef(action) {
   if (action.targetRange !== undefined) {
     issues.push(...validateActionTargetRange(action.targetRange).issues);
   }
+
+  return validationResult(issues);
+}
+
+export function createProposedActionReviewRef({
+  actionId,
+  actionType,
+  status,
+  resourceRef,
+  target,
+  targetAnchor,
+  targetRange,
+  originalTextHash,
+  currentText,
+  proposedText,
+  surroundingText,
+  rationale,
+  conflictReasonCode,
+  expiresAt
+}) {
+  return {
+    actionId,
+    actionType,
+    status,
+    resourceRef,
+    target: target ?? createProposedActionTarget({ targetAnchor, targetRange }),
+    originalTextHash,
+    ...(currentText === undefined ? {} : { currentText }),
+    proposedText,
+    ...(surroundingText === undefined ? {} : { surroundingText }),
+    rationale,
+    ...(conflictReasonCode === undefined ? {} : { conflictReasonCode }),
+    expiresAt
+  };
+}
+
+export function validateProposedActionReviewRef(reviewRef) {
+  const issues = [
+    ...requireRecord(reviewRef, "actionReview")
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...requireString(reviewRef.actionId, "actionReview.actionId"),
+    ...requireEnum(reviewRef.actionType, "actionReview.actionType", PROPOSED_ACTION_TYPE_SET),
+    ...requireEnum(reviewRef.status, "actionReview.status", PROPOSED_ACTION_STATUS_SET),
+    ...validateResourceRef(reviewRef.resourceRef, "actionReview.resourceRef").issues,
+    ...validateProposedActionTarget(reviewRef.target, "actionReview.target").issues,
+    ...requireString(reviewRef.originalTextHash, "actionReview.originalTextHash"),
+    ...requireString(reviewRef.currentText, "actionReview.currentText", {
+      optional: true,
+      nonEmpty: false
+    }),
+    ...requireString(reviewRef.proposedText, "actionReview.proposedText", {
+      nonEmpty: false
+    }),
+    ...requireString(reviewRef.surroundingText, "actionReview.surroundingText", {
+      optional: true,
+      nonEmpty: false
+    }),
+    ...requireString(reviewRef.rationale, "actionReview.rationale"),
+    ...requireString(reviewRef.conflictReasonCode, "actionReview.conflictReasonCode", {
+      optional: true
+    }),
+    ...requireString(reviewRef.expiresAt, "actionReview.expiresAt", { isoTimestamp: true })
+  );
 
   return validationResult(issues);
 }

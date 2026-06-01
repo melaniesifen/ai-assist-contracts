@@ -24,11 +24,16 @@ import {
   SESSION_SECRET_STATUSES,
   STANDARD_ERROR_CODES,
   createConnectorError,
+  createConnectorReadContextResult,
   createConnectorResponse,
+  createConnectorResourceListResult,
   createContractError,
   createUnsupportedContractVersionError,
   createActionTargetRange,
   createActionTargetAnchor,
+  createProposedActionTarget,
+  createActionDecisionCommandPayload,
+  createApplyActionCommandPayload,
   createContractVersionRef,
   createHttpCommandRequest,
   createHttpCommandResponse,
@@ -38,7 +43,11 @@ import {
   createProductCredentialError,
   createProviderError,
   createProviderResponse,
+  createProviderTextProposal,
+  createProviderTextProposalBatch,
+  createProviderTextProposalTargetHint,
   createProposedActionRef,
+  createProposedActionReviewRef,
   createProvenance,
   createResourceRef,
   createSessionEvent,
@@ -48,21 +57,37 @@ import {
   isMvpContextMode,
   isTerminalProposedActionStatus,
   validateSupportedContractVersion,
+  validateActionDecisionCommandPayload,
+  validateApplyActionCommandPayload,
   validateHttpCommandRequest,
   validateHttpCommandResponse,
+  validateConnectorReadContextResult,
+  validateConnectorResourceListResult,
   validateConnectorResponse,
   validateContractError,
   validateActionTargetRange,
+  validateProposedActionTarget,
   validateIdentityScope,
   validateMetadataLogEvent,
   validateNormalizedContext,
   validateProviderResponse,
+  validateProviderTextProposal,
+  validateProviderTextProposalBatch,
+  validateProviderTextProposalTargetHint,
   validateProposedActionRef,
+  validateProposedActionReviewRef,
   validateProposedActionStatusTransition,
   validateSessionEvent,
   validateSessionEventPayload,
   validateSessionSecretStatusRef
 } from "../src/index.js";
+import {
+  applyActionCommand,
+  googleDocsReadContextResult,
+  googleDocsResourceListResult,
+  proposedActionReviewRef,
+  providerProposalBatch
+} from "./fixtures/google-docs-vertical-slice.fixture.js";
 
 const NOW = "2026-05-29T00:00:00.000Z";
 const LATER = "2026-05-29T01:00:00.000Z";
@@ -206,6 +231,20 @@ test("builds and validates normalized context with provenance", () => {
   });
   assert.equal(invalid.valid, false);
   assert.equal(invalid.issues.some((item) => item.field === "provenance.connectorVerified"), true);
+  assert.equal(
+    validateNormalizedContext({
+      ...context,
+      provider: "made_up_connector"
+    }).issues.some((item) => item.field === "provider"),
+    true
+  );
+  assert.equal(
+    validateNormalizedContext({
+      ...context,
+      provenance: { ...provenance, connector: "made_up_connector" }
+    }).issues.some((item) => item.field === "provenance.connector"),
+    true
+  );
 });
 
 test("validates session event envelope and typed payloads", () => {
@@ -379,6 +418,43 @@ test("validates HTTP command request and response envelopes", () => {
   );
 });
 
+test("validates action decision and apply-action command payloads", () => {
+  const decision = createActionDecisionCommandPayload({
+    sessionId: "session_01",
+    actionId: "action_01",
+    reasonCode: "USER_APPROVED"
+  });
+
+  assert.equal(validateActionDecisionCommandPayload(decision).valid, true);
+  assert.equal(
+    validateActionDecisionCommandPayload({ ...decision, actionId: " " }).issues[0].field,
+    "actionDecisionPayload.actionId"
+  );
+
+  const applyPayload = createApplyActionCommandPayload({
+    sessionId: "session_01",
+    actionId: "action_01"
+  });
+
+  assert.equal(validateApplyActionCommandPayload(applyPayload).valid, true);
+  assert.equal(
+    validateApplyActionCommandPayload({
+      ...applyPayload,
+      actionId: " "
+    }).issues.some((item) => item.field === "applyActionPayload.actionId"),
+    true
+  );
+  assert.equal(
+    validateHttpCommandRequest({
+      ...applyActionCommand,
+      idempotencyKey: undefined
+    }).issues.some((item) => item.field === "idempotencyKey"),
+    true
+  );
+  assert.equal(validateHttpCommandRequest(applyActionCommand).valid, true);
+  assert.equal(validateApplyActionCommandPayload(applyActionCommand.payload).valid, true);
+});
+
 test("validates action.proposed events with full resource references", () => {
   const event = createSessionEvent({
     eventId: "evt_02",
@@ -435,6 +511,13 @@ test("validates proposed action refs and terminal status helpers", () => {
   });
 
   assert.equal(validateProposedActionRef(action).valid, true);
+  assert.equal(
+    validateProposedActionRef({
+      ...action,
+      provider: "made_up_connector"
+    }).issues.some((item) => item.field === "provider"),
+    true
+  );
   assert.equal(isTerminalProposedActionStatus(PROPOSED_ACTION_STATUSES.PROPOSED), false);
   assert.equal(isTerminalProposedActionStatus(PROPOSED_ACTION_STATUSES.CONFLICTED), true);
   assert.equal(
@@ -500,6 +583,64 @@ test("validates proposed action refs and terminal status helpers", () => {
       expiresAt: NOW,
       now: LATER
     }).issues.some((item) => item.field === "expiresAt"),
+    true
+  );
+});
+
+test("validates reviewable proposed-action refs for PR-style diff cards", () => {
+  const reviewRef = createProposedActionReviewRef({
+    actionId: "action_01",
+    actionType: PROPOSED_ACTION_TYPES.REPLACE_TEXT,
+    status: PROPOSED_ACTION_STATUSES.PROPOSED,
+    resourceRef: createResourceRef({
+      connector: CONNECTORS.GOOGLE_DOCS,
+      resourceId: "doc_01",
+      resourceType: "document"
+    }),
+    target: createProposedActionTarget({
+      targetRange: createActionTargetRange({ start: 1, end: 10 })
+    }),
+    originalTextHash: "sha256:original",
+    currentText: "<current review text>",
+    proposedText: "<proposed review text>",
+    surroundingText: "<surrounding review context>",
+    rationale: "Clarify the selected sentence.",
+    expiresAt: LATER
+  });
+
+  assert.equal(validateProposedActionReviewRef(reviewRef).valid, true);
+  assert.equal(validateProposedActionReviewRef(proposedActionReviewRef).valid, true);
+  assert.equal(validateProposedActionTarget(reviewRef.target).valid, true);
+
+  const noTarget = validateProposedActionReviewRef({
+    ...reviewRef,
+    target: undefined
+  });
+  assert.equal(noTarget.valid, false);
+  assert.equal(noTarget.issues.some((item) => item.field === "actionReview.target"), true);
+  assert.equal(
+    validateProposedActionTarget({
+      targetAnchor: createActionTargetAnchor({
+        connector: CONNECTORS.GOOGLE_DOCS,
+        anchorId: "anchor_01"
+      }),
+      targetRange: createActionTargetRange({ start: 1, end: 10 })
+    }).issues.some((item) => item.field === "target"),
+    true
+  );
+
+  assert.equal(
+    validateProposedActionReviewRef({
+      ...reviewRef,
+      resourceRef: { resourceId: "doc_01" }
+    }).issues.some((item) => item.field === "actionReview.resourceRef.connector"),
+    true
+  );
+  assert.equal(
+    validateProposedActionReviewRef({
+      ...reviewRef,
+      resourceRef: { ...reviewRef.resourceRef, connector: "made_up_connector" }
+    }).issues.some((item) => item.field === "actionReview.resourceRef.connector"),
     true
   );
 });
@@ -595,6 +736,72 @@ test("validates provider response and normalized provider error", () => {
   );
 });
 
+test("validates provider text proposal batches without provider-specific workflow ownership", () => {
+  const proposal = createProviderTextProposal({
+    proposalId: "proposal_01",
+    actionType: PROPOSED_ACTION_TYPES.REPLACE_TEXT,
+    currentText: "<current review text>",
+    proposedText: "<proposed review text>",
+    surroundingText: "<surrounding review context>",
+    rationale: "Clarify the selected sentence.",
+    targetHint: createProviderTextProposalTargetHint({
+      originalTextHash: "sha256:original"
+    })
+  });
+  const batch = createProviderTextProposalBatch({
+    provider: MODEL_PROVIDERS.OPENAI,
+    model: "gpt-example",
+    messageId: "msg_01",
+    proposals: [proposal],
+    usage: {
+      inputTokens: 10,
+      outputTokens: 20,
+      totalTokens: 30
+    }
+  });
+
+  assert.equal(validateProviderTextProposal(proposal).valid, true);
+  assert.equal(validateProviderTextProposalBatch(batch).valid, true);
+  assert.equal(validateProviderTextProposalBatch(providerProposalBatch).valid, true);
+  assert.equal(validateProviderTextProposalTargetHint(proposal.targetHint).valid, true);
+  assert.equal(
+    validateProviderTextProposal({
+      ...proposal,
+      actionType: "rewrite"
+    }).issues[0].field,
+    "providerTextProposal.actionType"
+  );
+  assert.equal(
+    validateProviderTextProposalBatch({
+      ...batch,
+      proposals: [{ ...proposal, proposedText: undefined }]
+    }).issues.some((item) => item.field === "providerTextProposalBatch.proposals.0.proposedText"),
+    true
+  );
+  assert.equal(
+    validateProviderTextProposal({
+      ...proposal,
+      targetHint: {
+        originalTextHash: "sha256:original",
+        rawDocumentText: "<not allowed>"
+      }
+    }).issues.some((item) => item.field === "providerTextProposal.targetHint.rawDocumentText"),
+    true
+  );
+  assert.equal(
+    validateProviderTextProposal({
+      ...proposal,
+      targetHint: createProviderTextProposalTargetHint({
+        targetAnchor: {
+          connector: "made_up_connector",
+          anchorId: "anchor_01"
+        }
+      })
+    }).issues.some((item) => item.field === "providerTextProposal.targetHint.targetAnchor.connector"),
+    true
+  );
+});
+
 test("validates connector response and normalized connector error", () => {
   const success = createConnectorResponse({
     connector: CONNECTORS.GOOGLE_DOCS,
@@ -636,6 +843,61 @@ test("validates connector response and normalized connector error", () => {
       status: CONNECTOR_RESPONSE_STATUSES.RETRYABLE_ERROR,
       requestId: "req_01"
     }).issues.some((item) => item.field === "error"),
+    true
+  );
+});
+
+test("validates Google Docs resource list and read-context connector results", () => {
+  const resourceRef = createResourceRef({
+    connector: CONNECTORS.GOOGLE_DOCS,
+    resourceId: "doc_01",
+    resourceType: "document",
+    displayName: "Quarterly plan"
+  });
+  const listResult = createConnectorResourceListResult({
+    resources: [resourceRef],
+    nextPageToken: "next_page"
+  });
+
+  assert.equal(validateConnectorResourceListResult(listResult).valid, true);
+  assert.equal(validateConnectorResourceListResult(googleDocsResourceListResult).valid, true);
+  assert.equal(
+    validateConnectorResourceListResult({
+      resources: [{ resourceId: "doc_01" }]
+    }).issues.some((item) => item.field === "resourceListResult.resources.0.connector"),
+    true
+  );
+  assert.equal(
+    validateConnectorResourceListResult({
+      resources: [{ ...resourceRef, connector: "made_up_connector" }]
+    }).issues.some((item) => item.field === "resourceListResult.resources.0.connector"),
+    true
+  );
+
+  const readResult = createConnectorReadContextResult({
+    context: googleDocsReadContextResult.context,
+    resourceRevision: "rev_01"
+  });
+  assert.equal(validateConnectorReadContextResult(readResult).valid, true);
+  assert.equal(validateConnectorReadContextResult(googleDocsReadContextResult).valid, true);
+  assert.equal(
+    validateConnectorReadContextResult({
+      resourceRevision: "rev_01"
+    }).issues.some((item) => item.field === "readContextResult.context"),
+    true
+  );
+  assert.equal(
+    validateConnectorReadContextResult({
+      ...readResult,
+      context: { ...readResult.context, contentHash: " " }
+    }).issues.some((item) => item.field === "readContextResult.context.contentHash"),
+    true
+  );
+  assert.equal(
+    validateConnectorReadContextResult({
+      ...readResult,
+      context: { ...readResult.context, provider: "made_up_connector" }
+    }).issues.some((item) => item.field === "readContextResult.context.provider"),
     true
   );
 });
