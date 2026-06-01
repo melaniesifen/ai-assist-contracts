@@ -48,7 +48,7 @@ Sources:
 - [x] `EVT-001`: Add HTTP command request/response envelope contracts with request and correlation IDs.
 - [x] `ACTION-002`: Add invalid proposed-action transition validation if lifecycle enforcement remains shared.
 - [ ] `PROVIDER-001`: Add provider adapter interface fixtures for credential validation, generation, streaming, usage, and errors.
-- [ ] `OPS-004`: Add failure-mode fixtures for dependency, throttling, KMS, OAuth, connector, and provider errors.
+- [ ] `OPS-004`: Add contract fixture and conformance cases for dependency, throttling, KMS, OAuth, connector, and provider error shapes. This repo owns the shared error payload fixtures other services can validate against; infrastructure observability, dashboards, and alerts remain owned by `ai-assist-infra`.
 - [x] `OPS-003`: Reference metadata-only logging rules for contracts that touch sensitive content.
 
 ## Quality And Release Tasks
