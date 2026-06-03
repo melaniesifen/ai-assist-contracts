@@ -46,19 +46,21 @@ Sources:
 - [x] `ARCH-003`: Add explicit contract version field or negotiation helper where service boundaries need version checks.
 - [x] `ARCH-003`: Add unsupported contract version validation that maps to `UNSUPPORTED_CONTRACT_VERSION`.
 - [x] `ARCH-003`: Add coordinated rollout note requirements for breaking contract changes.
-- [ ] `ARCH-003`: Add compatibility fixtures for downstream service contract tests.
-- [ ] `ARCH-003`: Add integration tests that load compatibility fixtures across auth, secrets, context, events, actions, and provider contracts.
-- [ ] `AUTH-001`: Add cross-service fixtures proving services derive identity from verified auth context, not request bodies.
+- [x] `ARCH-003`: Add compatibility fixtures for downstream service contract tests.
+- [x] `ARCH-003`: Add integration tests that load compatibility fixtures across auth, secrets, context, events, actions, and provider contracts.
+- [x] `AUTH-001`: Add cross-service fixtures proving services derive identity from verified auth context, not request bodies.
 - [x] `AUTH-002`: Define shared typed errors for unauthorized, expired, and malformed product credentials if missing from service needs.
-- [ ] `AUTH-004`: Add compatibility fixtures for `SessionSecrets` records, metadata-only responses, and expired-secret errors.
+- [x] `AUTH-004`: Add compatibility fixtures for `SessionSecrets` records, metadata-only responses, and expired-secret errors.
 - [ ] `CTX-002`: Add full `ContextConsentGrants` contract once context service implements persistence.
-- [ ] `CTX-005`: Add shared connector interface request/response fixtures for list, read, verify, and apply operations.
+- [x] `CTX-002`: Add M1 compatibility fixtures for active, missing, revoked, and expired consent scenarios using the current shared consent vocabulary. Full persisted `ContextConsentGrants` shape remains deferred to the context-service persistence task above.
+- [x] `CTX-003`: Add M1 compatibility fixtures for `SELECTION`, `ACTIVE_RESOURCE`, and truncated normalized context.
+- [x] `CTX-005`: Add shared connector interface request/response fixtures for list, read, verify, and apply operations.
 - [x] `EVT-001`: Add HTTP command request/response envelope contracts with request and correlation IDs.
 - [x] `ACTION-003`: Add shared action decision command payload helpers for approve/reject commands.
 - [x] `ACTION-004`: Add shared apply-action command payload helpers that identify the action without trusting client-supplied revision/hash facts.
 - [x] `ACTION-002`: Add invalid proposed-action transition validation if lifecycle enforcement remains shared.
-- [ ] `PROVIDER-001`: Add provider adapter interface fixtures for credential validation, generation, streaming, usage, and errors.
-- [ ] `OPS-004`: Add contract fixture and conformance cases for dependency, throttling, KMS, OAuth, connector, and provider error shapes. This repo owns the shared error payload fixtures other services can validate against; infrastructure observability, dashboards, and alerts remain owned by `ai-assist-infra`.
+- [x] `PROVIDER-001`: Add provider adapter interface fixtures for credential validation, generation, usage, and errors. Streaming-specific chunks remain event-service owned because current shared provider helpers model normalized responses and structured proposal batches, not provider stream deltas.
+- [x] `OPS-004`: Add contract fixture and conformance cases for dependency, throttling, KMS, OAuth, connector, and provider error shapes. This repo owns the shared error payload fixtures other services can validate against; infrastructure observability, dashboards, and alerts remain owned by `ai-assist-infra`.
 - [x] `OPS-003`: Reference metadata-only logging rules for contracts that touch sensitive content.
 
 ## Quality And Release Tasks
@@ -69,4 +71,5 @@ Sources:
 - [ ] Add deployment-style pipeline tasks for schema validation, compatibility checks, package build, and publish dry run.
 - [ ] Publish package to the selected private or public package registry.
 - [ ] Add contract migration guidance for breaking changes.
+- [x] Add source compatibility fixtures for cross-repo contract conformance tests.
 - [ ] Add cross-repo contract conformance tests.

@@ -26,6 +26,8 @@ Included contracts:
 - Metadata-only logging field policy and log-event validation helpers.
 - Shared validation helpers for service boundary checks.
 - Initial Smithy source models for the same MVP contract vocabulary.
+- Source compatibility fixtures for the Milestone 1 Google Docs
+  read/propose/review/apply contract slice.
 
 Not included:
 
@@ -154,3 +156,47 @@ npm run coverage
 ```
 
 The coverage command uses Node's built-in test runner and prints a text report. If later tooling writes HTML, LCOV, TAP, JUnit, or build output, those generated paths are ignored by `.gitignore`.
+
+## Compatibility Fixtures
+
+Source fixtures live under `fixtures/` and are included in the package files.
+Use them in consumer repos instead of copying local mock shapes.
+
+The Milestone 1 Google Docs vertical slice is exported as:
+
+```js
+import {
+  M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES,
+  applyActionCommand,
+  proposedActionReviewRef
+} from "@ai-assist/contracts/fixtures/m1-google-docs-vertical-slice";
+```
+
+Fixture names use:
+
+```text
+<task-area>-<flow>-<scenario>
+```
+
+Each fixture entry includes `name`, `taskArea`, `flow`, `contractVersion`,
+`validator`, and `value`.
+
+Consumer mapping:
+
+- `ai-assist-web`: action review, approve/reject/apply command, typed error,
+  and session event fixtures for Milestone 2 UI tests.
+- `ai-assist-orchestration-service`: authenticated command envelope, provider
+  proposal batch, action review, action command, apply-action, and dependency
+  error fixtures.
+- `ai-assist-context-service`: active consent grant, consent error, and
+  normalized context fixtures.
+- `ai-assist-google-docs-adapter`: Google Docs list, read-context, target
+  verification, conflict, quota, and reconnect-required connector fixtures.
+- `ai-assist-session-events-service`: progress, assistant final, action
+  proposed, action status changed, and typed error event fixtures.
+- `ai-assist-auth-service`: verified identity, authenticated command envelope,
+  product session error, and server-derived identity fixtures.
+
+Fixtures must stay synthetic. Do not add provider keys, OAuth tokens, raw
+prompts, full document text, model responses, or decrypted action payload
+plaintext. User-visible review snippets may use short placeholder text only.
