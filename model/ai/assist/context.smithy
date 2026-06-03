@@ -58,6 +58,10 @@ enum ConsentGrantStatus {
     EXPIRED
 }
 
+list ScopeList {
+    member: String
+}
+
 @documentation("Connector resource reference without raw content.")
 structure ResourceRef {
     @required
@@ -71,6 +75,41 @@ structure ResourceRef {
 
     displayName: String
     externalUrl: String
+}
+
+@documentation("Metadata-only consent grant reference used before context capture. Exactly one boundary should be present: resourceRef or workspaceBoundary.")
+structure ContextConsentGrantRef {
+    @required
+    grantId: String
+
+    @required
+    tenantId: String
+
+    @required
+    userId: String
+
+    @required
+    provider: Connector
+
+    @required
+    contextMode: ContextMode
+
+    resourceRef: ResourceRef
+    workspaceBoundary: Document
+
+    @required
+    scopes: ScopeList
+
+    @required
+    status: ConsentGrantStatus
+
+    @required
+    grantedAt: Timestamp
+
+    revokedAt: Timestamp
+
+    @required
+    expiresAt: Timestamp
 }
 
 @documentation("Context provenance. Write-back requires connectorVerified=true with trusted connector metadata.")

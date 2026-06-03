@@ -27,6 +27,7 @@ import {
   createConnectorReadContextResult,
   createConnectorResponse,
   createConnectorResourceListResult,
+  createContextConsentGrantRef,
   createContractError,
   createUnsupportedContractVersionError,
   createActionTargetRange,
@@ -64,6 +65,7 @@ import {
   validateConnectorReadContextResult,
   validateConnectorResourceListResult,
   validateConnectorResponse,
+  validateContextConsentGrantRef,
   validateContractError,
   validateActionTargetRange,
   validateProposedActionTarget,
@@ -243,6 +245,50 @@ test("builds and validates normalized context with provenance", () => {
       ...context,
       provenance: { ...provenance, connector: "made_up_connector" }
     }).issues.some((item) => item.field === "provenance.connector"),
+    true
+  );
+});
+
+test("validates context consent grant refs", () => {
+  const resourceRef = createResourceRef({
+    connector: CONNECTORS.GOOGLE_DOCS,
+    resourceId: "doc_01",
+    resourceType: "document"
+  });
+  const grant = createContextConsentGrantRef({
+    grantId: "grant_01",
+    tenantId: "tenant_01",
+    userId: "user_01",
+    provider: CONNECTORS.GOOGLE_DOCS,
+    contextMode: CONTEXT_MODES.ACTIVE_RESOURCE,
+    resourceRef,
+    scopes: ["documents.readonly"],
+    status: "active",
+    grantedAt: NOW,
+    expiresAt: LATER
+  });
+
+  assert.equal(validateContextConsentGrantRef(grant).valid, true);
+  assert.equal(
+    validateContextConsentGrantRef({
+      ...grant,
+      resourceRef: undefined,
+      workspaceBoundary: undefined
+    }).issues.some((item) => item.field === "contextConsentGrant"),
+    true
+  );
+  assert.equal(
+    validateContextConsentGrantRef({
+      ...grant,
+      workspaceBoundary: { workspaceId: "workspace_01" }
+    }).issues.some((item) => item.field === "contextConsentGrant"),
+    true
+  );
+  assert.equal(
+    validateContextConsentGrantRef({
+      ...grant,
+      scopes: [" "]
+    }).issues.some((item) => item.field === "contextConsentGrant.scopes.0"),
     true
   );
 });

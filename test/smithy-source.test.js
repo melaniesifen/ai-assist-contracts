@@ -202,6 +202,11 @@ test("uses typed Smithy payload and vocabulary members where generated artifacts
   );
 
   assertMemberType("context.smithy", "ResourceRef", "connector", "Connector");
+  assertMemberType("context.smithy", "ContextConsentGrantRef", "provider", "Connector");
+  assertMemberType("context.smithy", "ContextConsentGrantRef", "contextMode", "ContextMode");
+  assertMemberType("context.smithy", "ContextConsentGrantRef", "resourceRef", "ResourceRef");
+  assertMemberType("context.smithy", "ContextConsentGrantRef", "scopes", "ScopeList");
+  assertMemberType("context.smithy", "ContextConsentGrantRef", "status", "ConsentGrantStatus");
   assertMemberType("context.smithy", "Provenance", "connector", "Connector");
   assertMemberType("context.smithy", "NormalizedContext", "provider", "Connector");
   assertMemberType("actions.smithy", "ActionTargetAnchor", "connector", "Connector");

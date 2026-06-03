@@ -1,11 +1,13 @@
 import {
   enumSet,
   freezeValues,
+  issue,
   requireArray,
   requireBoolean,
   requireEnum,
   requireRecord,
   requireString,
+  VALIDATION_ISSUE_CODES,
   validationResult
 } from "./validation.js";
 import { CONNECTOR_SET } from "./connector-vocabulary.js";
@@ -71,6 +73,100 @@ export function createResourceRef({
     ...(displayName === undefined ? {} : { displayName }),
     ...(externalUrl === undefined ? {} : { externalUrl })
   };
+}
+
+export function createContextConsentGrantRef({
+  grantId,
+  tenantId,
+  userId,
+  provider,
+  contextMode,
+  resourceRef,
+  workspaceBoundary,
+  scopes,
+  status,
+  grantedAt,
+  revokedAt,
+  expiresAt
+}) {
+  return {
+    grantId,
+    tenantId,
+    userId,
+    provider,
+    contextMode,
+    ...(resourceRef === undefined ? {} : { resourceRef }),
+    ...(workspaceBoundary === undefined ? {} : { workspaceBoundary }),
+    scopes,
+    status,
+    grantedAt,
+    ...(revokedAt === undefined ? {} : { revokedAt }),
+    expiresAt
+  };
+}
+
+export function validateContextConsentGrantRef(grant, field = "contextConsentGrant") {
+  const issues = [
+    ...requireRecord(grant, field)
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...requireString(grant.grantId, `${field}.grantId`),
+    ...requireString(grant.tenantId, `${field}.tenantId`),
+    ...requireString(grant.userId, `${field}.userId`),
+    ...requireEnum(grant.provider, `${field}.provider`, CONNECTOR_SET),
+    ...requireEnum(grant.contextMode, `${field}.contextMode`, CONTEXT_MODE_SET),
+    ...requireArray(grant.scopes, `${field}.scopes`),
+    ...requireEnum(grant.status, `${field}.status`, CONSENT_GRANT_STATUS_SET),
+    ...requireString(grant.grantedAt, `${field}.grantedAt`, { isoTimestamp: true }),
+    ...requireString(grant.revokedAt, `${field}.revokedAt`, {
+      isoTimestamp: true,
+      optional: true
+    }),
+    ...requireString(grant.expiresAt, `${field}.expiresAt`, { isoTimestamp: true })
+  );
+
+  if (Array.isArray(grant.scopes)) {
+    for (const [index, scope] of grant.scopes.entries()) {
+      issues.push(...requireString(scope, `${field}.scopes.${index}`));
+    }
+  }
+
+  const hasResourceRef = grant.resourceRef !== undefined;
+  const hasWorkspaceBoundary = grant.workspaceBoundary !== undefined;
+
+  if (!hasResourceRef && !hasWorkspaceBoundary) {
+    issues.push(
+      issue(
+        field,
+        VALIDATION_ISSUE_CODES.REQUIRED,
+        `${field}.resourceRef or ${field}.workspaceBoundary is required`
+      )
+    );
+  }
+
+  if (hasResourceRef && hasWorkspaceBoundary) {
+    issues.push(
+      issue(
+        field,
+        VALIDATION_ISSUE_CODES.UNSUPPORTED,
+        `${field} must include only one consent boundary`
+      )
+    );
+  }
+
+  if (hasResourceRef) {
+    issues.push(...validateResourceRef(grant.resourceRef, `${field}.resourceRef`).issues);
+  }
+
+  if (hasWorkspaceBoundary) {
+    issues.push(...requireRecord(grant.workspaceBoundary, `${field}.workspaceBoundary`));
+  }
+
+  return validationResult(issues);
 }
 
 export function validateResourceRef(resourceRef, field = "resourceRef") {
