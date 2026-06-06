@@ -37,6 +37,15 @@ Sources:
 - [x] `CTX-005` / `DOCS-001` / `DOCS-002`: Add Google Docs resource-list and read-context result helpers plus fixture coverage for the read/propose/review/apply slice.
 - [x] `PROVIDER-001`: Add structured provider text proposal batch and typed target-hint helpers for provider-neutral proposal output.
 
+## Completed First-Run Setup Contract Helpers
+
+- [x] `AUTH-002` / M3: Add product session status refs for anonymous, authenticated, and expired first-run setup states.
+- [x] `AUTH-003` / M3: Add Google OAuth connection status refs for not connected, connected, and reconnect-required states.
+- [x] `AUTH-004` / `AUTH-005` / M3: Add provider-secret readiness refs for missing, pending validation, valid, invalid, expired, and validation-failed states.
+- [x] `CTX-005` / M3: Add optional resource-session readiness refs for not started, ready, and not-ready setup states.
+- [x] M3: Add safe setup error refs and composed first-run setup status fixtures.
+- [x] M3: Add Smithy setup source, package exports, fixture docs, and contract tests.
+
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.

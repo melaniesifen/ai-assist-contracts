@@ -9,5 +9,6 @@ export * from "./identity.js";
 export * from "./logging.js";
 export * from "./providers.js";
 export * from "./secrets.js";
+export * from "./setup.js";
 export * from "./validation.js";
 export * from "./versioning.js";

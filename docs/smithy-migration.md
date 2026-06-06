@@ -22,6 +22,7 @@ smithy build --config smithy-build.json --output build/smithy
 - `model/ai/assist/connectors.smithy`: connector names, operations, normalized connector responses and errors.
 - `model/ai/assist/providers.smithy`: model providers, usage, normalized provider responses and errors.
 - `model/ai/assist/secrets.smithy`: metadata-only session secret status refs.
+- `model/ai/assist/setup.smithy`: first-run setup status refs for product session, Google OAuth, provider secret readiness, resource-session readiness, and safe setup errors.
 - `model/ai/assist/logging.smithy`: metadata-only log event shape.
 
 ## JavaScript Bootstrap Mapping
@@ -40,6 +41,7 @@ smithy build --config smithy-build.json --output build/smithy
 | `src/connectors.js` | `connectors.smithy` | Connector response and error vocabulary is mirrored. |
 | `src/providers.js` | `providers.smithy` | Provider response, usage, and error vocabulary is mirrored. |
 | `src/secrets.js` | `secrets.smithy` | Session secret status refs remain metadata-only. Provider fields use the Smithy `ModelProvider` enum. |
+| `src/setup.js` | `setup.smithy` | First-run setup state composes product session, Google OAuth, provider-secret, optional resource-session, and safe setup-error refs. Raw OAuth tokens, provider keys, and document content are intentionally unsupported. |
 | `src/logging.js` | `logging.smithy` | Metadata log fields are mirrored. Sensitive-field rejection remains JS-only until generated validators exist. |
 
 ## Generated Artifacts Strategy

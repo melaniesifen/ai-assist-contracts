@@ -20,6 +20,9 @@ Included contracts:
   refs, provenance helpers, and normalized context validation.
 - Transport-neutral `SessionEvent` envelope and MVP payload validators.
 - Short-lived `SessionSecrets` status refs and default TTL constants.
+- First-run setup status refs for product session, Google OAuth connection,
+  provider-secret readiness, optional resource-session readiness, and safe
+  UI-displayable setup errors.
 - Proposed action types, statuses, terminal status helpers, refs, and default
   TTL constants, plus shared status transition validation.
 - Provider and connector normalized response and error categories.
@@ -172,6 +175,15 @@ import {
 } from "@ai-assist/contracts/fixtures/m1-google-docs-vertical-slice";
 ```
 
+The Milestone 3 first-run setup slice is exported as:
+
+```js
+import {
+  M3_FIRST_RUN_SETUP_FIXTURES,
+  firstRunSetupReadyFixture
+} from "@ai-assist/contracts/fixtures/m3-first-run-setup";
+```
+
 Fixture names use:
 
 ```text
@@ -196,6 +208,12 @@ Consumer mapping:
   proposed, action status changed, and typed error event fixtures.
 - `ai-assist-auth-service`: verified identity, authenticated command envelope,
   product session error, and server-derived identity fixtures.
+- `ai-assist-auth-service` for Milestone 3: product session status and Google
+  OAuth connection status fixtures.
+- `ai-assist-secrets-service` for Milestone 3: provider-secret readiness and
+  safe setup-error fixtures.
+- `ai-assist-web` for Milestone 3: composed first-run setup status fixtures for
+  setup-state UI tests.
 
 Fixtures must stay synthetic. Do not add provider keys, OAuth tokens, raw
 prompts, full document text, model responses, or decrypted action payload

@@ -18,12 +18,18 @@ import {
   HTTP_COMMAND_TYPES,
   LOG_STATUS_VALUES,
   MODEL_PROVIDERS,
+  OAUTH_PROVIDERS,
+  GOOGLE_OAUTH_CONNECTION_STATUSES,
   PRODUCT_CREDENTIAL_ERROR_REFS,
+  PRODUCT_SESSION_STATUSES,
   PROGRESS_STATUSES,
+  PROVIDER_SECRET_READINESS_STATUSES,
   PROPOSED_ACTION_STATUSES,
   PROPOSED_ACTION_TYPES,
   PROVIDER_ERROR_CATEGORIES,
   PROVIDER_RESPONSE_STATUSES,
+  RESOURCE_SESSION_READINESS_STATUSES,
+  SETUP_ERROR_KINDS,
   SESSION_EVENT_TYPES,
   SESSION_SECRET_STATUSES,
   STANDARD_ERROR_CODES
@@ -42,7 +48,8 @@ const expectedModelFiles = Object.freeze([
   "events.smithy",
   "logging.smithy",
   "providers.smithy",
-  "secrets.smithy"
+  "secrets.smithy",
+  "setup.smithy"
 ]);
 
 function readModel(filename) {
@@ -169,6 +176,24 @@ test("mirrors JavaScript bootstrap enum values in Smithy models", () => {
   assertEnumValues("providers.smithy", "ProviderResponseStatus", PROVIDER_RESPONSE_STATUSES);
   assertEnumValues("providers.smithy", "ProviderErrorCategory", PROVIDER_ERROR_CATEGORIES);
   assertEnumValues("secrets.smithy", "SessionSecretStatus", SESSION_SECRET_STATUSES);
+  assertEnumValues("setup.smithy", "ProductSessionStatus", PRODUCT_SESSION_STATUSES);
+  assertEnumValues("setup.smithy", "OAuthProvider", OAUTH_PROVIDERS);
+  assertEnumValues(
+    "setup.smithy",
+    "GoogleOAuthConnectionStatus",
+    GOOGLE_OAUTH_CONNECTION_STATUSES
+  );
+  assertEnumValues(
+    "setup.smithy",
+    "ProviderSecretReadinessStatus",
+    PROVIDER_SECRET_READINESS_STATUSES
+  );
+  assertEnumValues(
+    "setup.smithy",
+    "ResourceSessionReadinessStatus",
+    RESOURCE_SESSION_READINESS_STATUSES
+  );
+  assertEnumValues("setup.smithy", "SetupErrorKind", SETUP_ERROR_KINDS);
   assertEnumValues("logging.smithy", "LogStatus", LOG_STATUS_VALUES);
 });
 
@@ -250,6 +275,39 @@ test("uses typed Smithy payload and vocabulary members where generated artifacts
     "ProviderTextProposalTargetHint"
   );
   assertMemberType("secrets.smithy", "SessionSecretStatusRef", "provider", "ModelProvider");
+  assertMemberType("setup.smithy", "ProductSessionStatusRef", "status", "ProductSessionStatus");
+  assertMemberType("setup.smithy", "GoogleOAuthConnectionStatusRef", "provider", "OAuthProvider");
+  assertMemberType(
+    "setup.smithy",
+    "GoogleOAuthConnectionStatusRef",
+    "status",
+    "GoogleOAuthConnectionStatus"
+  );
+  assertMemberType(
+    "setup.smithy",
+    "ProviderSecretReadinessRef",
+    "provider",
+    "ModelProvider"
+  );
+  assertMemberType(
+    "setup.smithy",
+    "ProviderSecretReadinessRef",
+    "status",
+    "ProviderSecretReadinessStatus"
+  );
+  assertMemberType(
+    "setup.smithy",
+    "ResourceSessionReadinessRef",
+    "resourceRef",
+    "ResourceRef"
+  );
+  assertMemberType("setup.smithy", "SetupErrorRef", "error", "ContractError");
+  assertMemberType(
+    "setup.smithy",
+    "FirstRunSetupStatus",
+    "providerSecrets",
+    "ProviderSecretReadinessList"
+  );
 });
 
 test("documents JS compatibility mapping and Smithy tooling notes", () => {
@@ -268,6 +326,7 @@ test("documents JS compatibility mapping and Smithy tooling notes", () => {
     "src/connectors.js",
     "src/providers.js",
     "src/secrets.js",
+    "src/setup.js",
     "src/logging.js"
   ]) {
     assert.match(migrationNotes, new RegExp(moduleName.replace(".", "\\.")));

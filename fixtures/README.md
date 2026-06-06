@@ -48,3 +48,18 @@ Google Docs vertical-slice work.
 Fixtures must remain synthetic and metadata-only where possible. Do not add
 provider keys, OAuth tokens, raw prompts, full document text, model responses,
 or decrypted action payload plaintext.
+
+## M3 Consumer Guidance
+
+Use `m3-first-run-setup.fixtures.js` for Milestone 3 first-run setup work.
+
+- `ai-assist-auth-service`: use product session status and Google OAuth
+  connection status fixtures for `/auth/session` and `/oauth/google/status`
+  shaped tests.
+- `ai-assist-secrets-service`: use provider-secret readiness fixtures for
+  metadata-only provider-key validation/status tests.
+- `ai-assist-web`: use composed first-run setup status fixtures for onboarding
+  and setup UI state tests.
+
+The M3 fixtures intentionally exclude OAuth tokens, authorization codes,
+provider keys, ciphertext, raw document text, prompts, and model responses.

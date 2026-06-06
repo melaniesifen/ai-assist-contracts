@@ -18,6 +18,8 @@
     "./logging": "./src/logging.js",
     "./providers": "./src/providers.js",
     "./secrets": "./src/secrets.js",
+    "./setup": "./src/setup.js",
+    "./fixtures/m3-first-run-setup": "./fixtures/m3-first-run-setup.fixtures.js",
     "./validation": "./src/validation.js",
     "./versioning": "./src/versioning.js"
   },
