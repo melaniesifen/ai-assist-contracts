@@ -30,7 +30,8 @@ Included contracts:
 - Shared validation helpers for service boundary checks.
 - Initial Smithy source models for the same MVP contract vocabulary.
 - Source compatibility fixtures for the Milestone 1 Google Docs
-  read/propose/review/apply contract slice.
+  read/propose/review/apply contract slice and shared Google Docs read-path
+  consumer tests.
 
 Not included:
 
@@ -184,6 +185,15 @@ import {
 } from "@ai-assist/contracts/fixtures/m3-first-run-setup";
 ```
 
+The shared Google Docs read-path fixture surface is exported as:
+
+```js
+import {
+  GOOGLE_DOCS_READ_PATH_FIXTURES,
+  googleDocsActiveResourceReadContextResult
+} from "@ai-assist/contracts/fixtures/google-docs-read-path";
+```
+
 Fixture names use:
 
 ```text
@@ -214,6 +224,10 @@ Consumer mapping:
   safe setup-error fixtures.
 - `ai-assist-web` for Milestone 3: composed first-run setup status fixtures for
   setup-state UI tests.
+- M4 Google Docs read-path consumers: use the shared `google-docs-read-path`
+  fixtures for context modes, consent states, resource list/read-context
+  success, truncation, reconnect-required, permission, quota/rate-limit, and
+  connector failure states.
 
 Fixtures must stay synthetic. Do not add provider keys, OAuth tokens, raw
 prompts, full document text, model responses, or decrypted action payload

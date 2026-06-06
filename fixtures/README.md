@@ -63,3 +63,25 @@ Use `m3-first-run-setup.fixtures.js` for Milestone 3 first-run setup work.
 
 The M3 fixtures intentionally exclude OAuth tokens, authorization codes,
 provider keys, ciphertext, raw document text, prompts, and model responses.
+
+## Google Docs Read-Path Guidance
+
+Use `google-docs-read-path.fixtures.js` for shared Google Docs read-path
+consumer tests, including M4.
+
+- `ai-assist-context-service`: use active/missing/revoked/expired consent from
+  M1 plus wrong-user and wrong-resource consent scenarios from the shared
+  read-path fixtures.
+- `ai-assist-google-docs-adapter`: use resource discovery, `SELECTION`,
+  `ACTIVE_RESOURCE`, truncated context, permission, quota/rate-limit, timeout,
+  unavailable, and reconnect-required fixtures.
+- `ai-assist-auth-service`: use reconnect-required status/error fixtures when
+  shaping Google token handoff behavior.
+- `ai-assist-web`: use the same read-path fixtures for readiness and failure UI
+  state tests without inventing local mock shapes.
+
+The read-path fixtures intentionally reuse M1/M3 fixture values where they are
+already sufficient and add only missing shared scenarios. They exclude OAuth
+tokens, authorization headers, provider keys, raw document text, selected text,
+prompts, model responses, screenshots, OCR, accessibility trees, and decrypted
+action payloads.

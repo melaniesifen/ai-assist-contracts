@@ -46,6 +46,13 @@ Sources:
 - [x] M3: Add safe setup error refs and composed first-run setup status fixtures.
 - [x] M3: Add Smithy setup source, package exports, fixture docs, and contract tests.
 
+## Completed Google Docs Read-Path Fixture Foundation
+
+- [x] M4 / `CTX-001` / `CTX-006`: Add shared read-path fixtures for unsupported future context modes.
+- [x] M4 / `CTX-002`: Add shared read-path fixtures for wrong-user and wrong-resource consent states while reusing existing active, missing, revoked, and expired consent fixtures.
+- [x] M4 / `DOCS-001` / `DOCS-002`: Add shared read-path fixtures for resource-list success, `SELECTION` read, `ACTIVE_RESOURCE` read, truncated active-resource read, permission failure, quota/rate-limit, timeout, unavailable connector failure, and reconnect-required.
+- [x] M4 / `OPS-003` / `SAFE-003`: Keep read-path fixtures metadata-only and covered by fixture leak tests.
+
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.
