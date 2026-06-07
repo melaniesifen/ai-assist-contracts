@@ -13,6 +13,7 @@
     "./context": "./src/context.js",
     "./errors": "./src/errors.js",
     "./events": "./src/events.js",
+    "./fixtures/assistant-stream": "./fixtures/assistant-stream.fixtures.js",
     "./fixtures/google-docs-read-path": "./fixtures/google-docs-read-path.fixtures.js",
     "./fixtures/m1-google-docs-vertical-slice": "./fixtures/m1-google-docs-vertical-slice.fixtures.js",
     "./fixtures/m3-first-run-setup": "./fixtures/m3-first-run-setup.fixtures.js",

@@ -53,6 +53,13 @@ Sources:
 - [x] M4 / `DOCS-001` / `DOCS-002`: Add shared read-path fixtures for resource-list success, `SELECTION` read, `ACTIVE_RESOURCE` read, truncated active-resource read, permission failure, quota/rate-limit, timeout, unavailable connector failure, and reconnect-required.
 - [x] M4 / `OPS-003` / `SAFE-003`: Keep read-path fixtures metadata-only and covered by fixture leak tests.
 
+## Completed Ask-And-Stream Fixture Foundation
+
+- [x] M5-T1 / `EVT-001`: Confirm generic assistant command request and accepted response fixtures.
+- [x] M5-T1 / `PROVIDER-001`: Add provider-neutral stream event validators and fixtures for delta, final metadata, and safe errors.
+- [x] M5-T1 / `EVT-002`: Add shared session event fixtures for progress, assistant delta, assistant final, and safe typed errors.
+- [x] M5-T1 / `OPS-003` / `SAFE-003`: Keep assistant stream fixtures synthetic and covered by fixture leak tests.
+
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.
@@ -75,7 +82,7 @@ Sources:
 - [x] `ACTION-003`: Add shared action decision command payload helpers for approve/reject commands.
 - [x] `ACTION-004`: Add shared apply-action command payload helpers that identify the action without trusting client-supplied revision/hash facts.
 - [x] `ACTION-002`: Add invalid proposed-action transition validation if lifecycle enforcement remains shared.
-- [x] `PROVIDER-001`: Add provider adapter interface fixtures for credential validation, generation, usage, and errors. Streaming-specific chunks remain event-service owned because current shared provider helpers model normalized responses and structured proposal batches, not provider stream deltas.
+- [x] `PROVIDER-001`: Add provider adapter interface fixtures for credential validation, generation, usage, errors, and provider-neutral stream delta/final/error events.
 - [x] `OPS-004`: Add contract fixture and conformance cases for dependency, throttling, KMS, OAuth, connector, and provider error shapes. This repo owns the shared error payload fixtures other services can validate against; infrastructure observability, dashboards, and alerts remain owned by `ai-assist-infra`.
 - [x] `OPS-003`: Reference metadata-only logging rules for contracts that touch sensitive content.
 

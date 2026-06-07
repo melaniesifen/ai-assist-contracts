@@ -61,6 +61,17 @@ enum ProviderErrorCategory {
     INTERNAL
 }
 
+enum ProviderStreamEventType {
+    @enumValue("assistant.delta")
+    ASSISTANT_DELTA
+
+    @enumValue("assistant.final")
+    ASSISTANT_FINAL
+
+    @enumValue("error")
+    ERROR
+}
+
 structure ProviderUsage {
     inputTokens: NonNegativeInteger
     outputTokens: NonNegativeInteger
@@ -93,6 +104,54 @@ structure ProviderResponse {
     finishReason: String
     usage: ProviderUsage
     error: ProviderError
+}
+
+structure ProviderStreamDeltaEvent {
+    @required
+    type: ProviderStreamEventType
+
+    @required
+    provider: ModelProvider
+
+    model: String
+
+    @required
+    delta: String
+}
+
+structure ProviderStreamFinalEvent {
+    @required
+    type: ProviderStreamEventType
+
+    @required
+    provider: ModelProvider
+
+    model: String
+
+    @required
+    finishReason: String
+
+    usage: ProviderUsage
+}
+
+structure ProviderStreamErrorEvent {
+    @required
+    type: ProviderStreamEventType
+
+    @required
+    provider: ModelProvider
+
+    model: String
+
+    @required
+    error: ProviderError
+}
+
+@documentation("Provider-neutral stream event emitted by provider adapters before orchestration wraps it in SessionEvent envelopes.")
+union ProviderStreamEvent {
+    assistantDelta: ProviderStreamDeltaEvent
+    assistantFinal: ProviderStreamFinalEvent
+    error: ProviderStreamErrorEvent
 }
 
 structure ProviderTextProposalTargetHint {

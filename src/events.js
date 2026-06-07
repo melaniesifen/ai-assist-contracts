@@ -120,10 +120,32 @@ function validateAssistantDeltaPayload(payload) {
 }
 
 function validateAssistantFinalPayload(payload) {
-  return validationResult([
+  const issues = [
     ...requireString(payload.messageId, "payload.messageId"),
     ...requireString(payload.finishReason, "payload.finishReason")
-  ]);
+  ];
+
+  if (payload.usage !== undefined) {
+    issues.push(...requireRecord(payload.usage, "payload.usage"));
+    if (isRecord(payload.usage)) {
+      issues.push(
+        ...requireInteger(payload.usage.inputTokens, "payload.usage.inputTokens", {
+          optional: true,
+          min: 0
+        }),
+        ...requireInteger(payload.usage.outputTokens, "payload.usage.outputTokens", {
+          optional: true,
+          min: 0
+        }),
+        ...requireInteger(payload.usage.totalTokens, "payload.usage.totalTokens", {
+          optional: true,
+          min: 0
+        })
+      );
+    }
+  }
+
+  return validationResult(issues);
 }
 
 function validateProgressPayload(payload) {

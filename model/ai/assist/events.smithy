@@ -8,6 +8,7 @@ use ai.assist.common#ErrorCategory
 use ai.assist.common#NonNegativeInteger
 use ai.assist.common#Timestamp
 use ai.assist.context#ResourceRef
+use ai.assist.providers#ProviderUsage
 
 enum SessionEventType {
     @enumValue("assistant.delta")
@@ -60,6 +61,8 @@ structure AssistantFinalPayload {
 
     @required
     finishReason: String
+
+    usage: ProviderUsage
 }
 
 structure ProgressPayload {

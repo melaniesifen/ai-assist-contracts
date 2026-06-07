@@ -28,6 +28,7 @@ import {
   PROPOSED_ACTION_TYPES,
   PROVIDER_ERROR_CATEGORIES,
   PROVIDER_RESPONSE_STATUSES,
+  PROVIDER_STREAM_EVENT_TYPES,
   RESOURCE_SESSION_READINESS_STATUSES,
   SETUP_ERROR_KINDS,
   SESSION_EVENT_TYPES,
@@ -175,6 +176,7 @@ test("mirrors JavaScript bootstrap enum values in Smithy models", () => {
   assertEnumValues("providers.smithy", "ModelProvider", MODEL_PROVIDERS);
   assertEnumValues("providers.smithy", "ProviderResponseStatus", PROVIDER_RESPONSE_STATUSES);
   assertEnumValues("providers.smithy", "ProviderErrorCategory", PROVIDER_ERROR_CATEGORIES);
+  assertEnumValues("providers.smithy", "ProviderStreamEventType", PROVIDER_STREAM_EVENT_TYPES);
   assertEnumValues("secrets.smithy", "SessionSecretStatus", SESSION_SECRET_STATUSES);
   assertEnumValues("setup.smithy", "ProductSessionStatus", PRODUCT_SESSION_STATUSES);
   assertEnumValues("setup.smithy", "OAuthProvider", OAUTH_PROVIDERS);
@@ -255,6 +257,24 @@ test("uses typed Smithy payload and vocabulary members where generated artifacts
     "ApplyActionCommandPayload",
     "actionId",
     "String"
+  );
+  assertUnionContains(
+    "providers.smithy",
+    "ProviderStreamEvent",
+    "assistantDelta",
+    "ProviderStreamDeltaEvent"
+  );
+  assertUnionContains(
+    "providers.smithy",
+    "ProviderStreamEvent",
+    "assistantFinal",
+    "ProviderStreamFinalEvent"
+  );
+  assertUnionContains(
+    "providers.smithy",
+    "ProviderStreamEvent",
+    "error",
+    "ProviderStreamErrorEvent"
   );
   assertMemberType(
     "connectors.smithy",

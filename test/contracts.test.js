@@ -20,6 +20,7 @@ import {
   PROPOSED_ACTION_TYPES,
   PROVIDER_ERROR_CATEGORIES,
   PROVIDER_RESPONSE_STATUSES,
+  PROVIDER_STREAM_EVENT_TYPES,
   SESSION_EVENT_TYPES,
   SESSION_SECRET_STATUSES,
   STANDARD_ERROR_CODES,
@@ -44,6 +45,7 @@ import {
   createProductCredentialError,
   createProviderError,
   createProviderResponse,
+  createProviderStreamEvent,
   createProviderTextProposal,
   createProviderTextProposalBatch,
   createProviderTextProposalTargetHint,
@@ -73,6 +75,7 @@ import {
   validateMetadataLogEvent,
   validateNormalizedContext,
   validateProviderResponse,
+  validateProviderStreamEvent,
   validateProviderTextProposal,
   validateProviderTextProposalBatch,
   validateProviderTextProposalTargetHint,
@@ -334,8 +337,21 @@ test("validates all session event payload variants", () => {
   assert.equal(
     validateSessionEventPayload(SESSION_EVENT_TYPES.ASSISTANT_FINAL, {
       messageId: "msg_01",
-      finishReason: "stop"
+      finishReason: "stop",
+      usage: {
+        inputTokens: 4,
+        outputTokens: 8,
+        totalTokens: 12
+      }
     }).valid,
+    true
+  );
+  assert.equal(
+    validateSessionEventPayload(SESSION_EVENT_TYPES.ASSISTANT_FINAL, {
+      messageId: "msg_01",
+      finishReason: "stop",
+      usage: { outputTokens: -1 }
+    }).issues.some((item) => item.field === "payload.usage.outputTokens"),
     true
   );
   assert.equal(
@@ -778,6 +794,72 @@ test("validates provider response and normalized provider error", () => {
       provider: MODEL_PROVIDERS.OPENAI,
       status: PROVIDER_RESPONSE_STATUSES.TERMINAL_ERROR
     }).issues.some((item) => item.field === "error"),
+    true
+  );
+});
+
+test("validates provider-neutral stream events", () => {
+  const delta = createProviderStreamEvent({
+    type: PROVIDER_STREAM_EVENT_TYPES.ASSISTANT_DELTA,
+    provider: MODEL_PROVIDERS.OPENAI,
+    model: "gpt-example",
+    delta: "fixture-delta"
+  });
+
+  assert.equal(validateProviderStreamEvent(delta).valid, true);
+
+  const final = createProviderStreamEvent({
+    type: PROVIDER_STREAM_EVENT_TYPES.ASSISTANT_FINAL,
+    provider: MODEL_PROVIDERS.OPENAI,
+    model: "gpt-example",
+    finishReason: "stop",
+    usage: {
+      inputTokens: 4,
+      outputTokens: 8,
+      totalTokens: 12
+    }
+  });
+
+  assert.equal(validateProviderStreamEvent(final).valid, true);
+
+  const error = createProviderStreamEvent({
+    type: PROVIDER_STREAM_EVENT_TYPES.ERROR,
+    provider: MODEL_PROVIDERS.ANTHROPIC,
+    model: "claude-example",
+    error: createProviderError({
+      category: PROVIDER_ERROR_CATEGORIES.RATE_LIMITED,
+      code: "PROVIDER_RATE_LIMITED",
+      message: "Provider asked the service to retry later.",
+      retryAfterSeconds: 30
+    })
+  });
+
+  assert.equal(validateProviderStreamEvent(error).valid, true);
+  assert.equal(
+    validateProviderStreamEvent({ ...delta, provider: "unknown" }).issues.some(
+      (item) => item.field === "provider"
+    ),
+    true
+  );
+  assert.equal(
+    validateProviderStreamEvent({
+      ...final,
+      usage: { totalTokens: -1 }
+    }).issues.some((item) => item.field === "usage.totalTokens"),
+    true
+  );
+  assert.equal(
+    validateProviderStreamEvent({
+      ...delta,
+      error: error.error
+    }).issues.some((item) => item.field === "error"),
+    true
+  );
+  assert.equal(
+    validateProviderStreamEvent({
+      type: PROVIDER_STREAM_EVENT_TYPES.ERROR,
+      provider: MODEL_PROVIDERS.OPENAI
+    }).issues.some((item) => item.field === "providerError"),
     true
   );
 });

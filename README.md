@@ -19,6 +19,8 @@ Included contracts:
 - Context modes, consent statuses, context source types, trust levels, resource
   refs, provenance helpers, and normalized context validation.
 - Transport-neutral `SessionEvent` envelope and MVP payload validators.
+- Provider-neutral stream event validators for deterministic provider adapter
+  deltas, final metadata, and safe stream errors.
 - Short-lived `SessionSecrets` status refs and default TTL constants.
 - First-run setup status refs for product session, Google OAuth connection,
   provider-secret readiness, optional resource-session readiness, and safe
@@ -194,6 +196,16 @@ import {
 } from "@ai-assist/contracts/fixtures/google-docs-read-path";
 ```
 
+The shared assistant stream fixture surface is exported as:
+
+```js
+import {
+  ASSISTANT_STREAM_FIXTURES,
+  providerStreamFixtures,
+  assistantSessionEventFixtures
+} from "@ai-assist/contracts/fixtures/assistant-stream";
+```
+
 Fixture names use:
 
 ```text
@@ -228,6 +240,10 @@ Consumer mapping:
   fixtures for context modes, consent states, resource list/read-context
   success, truncation, reconnect-required, permission, quota/rate-limit, and
   connector failure states.
+- Ask-and-stream consumers: use the shared `assistant-stream` fixtures for
+  assistant command creation, accepted command response, provider-neutral
+  stream delta/final/error events, `SessionEvent` progress/delta/final/error
+  envelopes, and safe provider dependency errors.
 
 Fixtures must stay synthetic. Do not add provider keys, OAuth tokens, raw
 prompts, full document text, model responses, or decrypted action payload

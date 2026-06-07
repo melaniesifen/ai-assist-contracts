@@ -7,7 +7,6 @@ import {
 import {
   enumSet,
   freezeValues,
-  isRecord,
   issue,
   requireArray,
   requireEnum,
@@ -49,6 +48,14 @@ export const PROVIDER_ERROR_CATEGORIES = freezeValues({
 
 export const PROVIDER_ERROR_CATEGORY_SET = enumSet(PROVIDER_ERROR_CATEGORIES);
 
+export const PROVIDER_STREAM_EVENT_TYPES = freezeValues({
+  ASSISTANT_DELTA: "assistant.delta",
+  ASSISTANT_FINAL: "assistant.final",
+  ERROR: "error"
+});
+
+export const PROVIDER_STREAM_EVENT_TYPE_SET = enumSet(PROVIDER_STREAM_EVENT_TYPES);
+
 export function createProviderResponse({
   provider,
   status,
@@ -69,6 +76,23 @@ export function createProviderResponse({
   };
 }
 
+function validateProviderUsage(usage, field = "usage") {
+  const issues = [
+    ...requireRecord(usage, field)
+  ];
+  if (issues.length > 0) {
+    return issues;
+  }
+
+  issues.push(
+    ...requireInteger(usage.inputTokens, `${field}.inputTokens`, { optional: true, min: 0 }),
+    ...requireInteger(usage.outputTokens, `${field}.outputTokens`, { optional: true, min: 0 }),
+    ...requireInteger(usage.totalTokens, `${field}.totalTokens`, { optional: true, min: 0 })
+  );
+
+  return issues;
+}
+
 export function validateProviderResponse(response) {
   const issues = [
     ...requireRecord(response, "providerResponse")
@@ -86,14 +110,7 @@ export function validateProviderResponse(response) {
   );
 
   if (response.usage !== undefined) {
-    issues.push(...requireRecord(response.usage, "usage"));
-    if (isRecord(response.usage)) {
-      issues.push(
-        ...requireInteger(response.usage.inputTokens, "usage.inputTokens", { optional: true, min: 0 }),
-        ...requireInteger(response.usage.outputTokens, "usage.outputTokens", { optional: true, min: 0 }),
-        ...requireInteger(response.usage.totalTokens, "usage.totalTokens", { optional: true, min: 0 })
-      );
-    }
+    issues.push(...validateProviderUsage(response.usage));
   }
 
   issues.push(...validateProviderResponseStatusError(response));
@@ -131,6 +148,89 @@ function validateProviderResponseStatusError(response) {
   }
 
   return [];
+}
+
+export function createProviderStreamEvent({
+  type,
+  provider,
+  model,
+  delta,
+  finishReason,
+  usage,
+  error
+}) {
+  return {
+    type,
+    provider,
+    ...(model === undefined ? {} : { model }),
+    ...(delta === undefined ? {} : { delta }),
+    ...(finishReason === undefined ? {} : { finishReason }),
+    ...(usage === undefined ? {} : { usage }),
+    ...(error === undefined ? {} : { error })
+  };
+}
+
+export function validateProviderStreamEvent(event) {
+  const issues = [
+    ...requireRecord(event, "providerStreamEvent")
+  ];
+  if (issues.length > 0) {
+    return validationResult(issues);
+  }
+
+  issues.push(
+    ...requireEnum(event.type, "type", PROVIDER_STREAM_EVENT_TYPE_SET),
+    ...requireEnum(event.provider, "provider", MODEL_PROVIDER_SET),
+    ...requireString(event.model, "model", { optional: true })
+  );
+
+  if (!PROVIDER_STREAM_EVENT_TYPE_SET.has(event.type)) {
+    return validationResult(issues);
+  }
+
+  issues.push(...validateProviderStreamEventFields(event));
+
+  if (event.type === PROVIDER_STREAM_EVENT_TYPES.ASSISTANT_DELTA) {
+    issues.push(...requireString(event.delta, "delta", { nonEmpty: false }));
+  }
+
+  if (event.type === PROVIDER_STREAM_EVENT_TYPES.ASSISTANT_FINAL) {
+    issues.push(...requireString(event.finishReason, "finishReason"));
+    if (event.usage !== undefined) {
+      issues.push(...validateProviderUsage(event.usage));
+    }
+  }
+
+  if (event.type === PROVIDER_STREAM_EVENT_TYPES.ERROR) {
+    issues.push(...validateProviderError(event.error).issues);
+  }
+
+  return validationResult(issues);
+}
+
+function validateProviderStreamEventFields(event) {
+  const baseFields = new Set(["type", "provider", "model"]);
+  const fieldsByType = {
+    [PROVIDER_STREAM_EVENT_TYPES.ASSISTANT_DELTA]: new Set([...baseFields, "delta"]),
+    [PROVIDER_STREAM_EVENT_TYPES.ASSISTANT_FINAL]: new Set([...baseFields, "finishReason", "usage"]),
+    [PROVIDER_STREAM_EVENT_TYPES.ERROR]: new Set([...baseFields, "error"])
+  };
+  const allowedFields = fieldsByType[event.type];
+  const issues = [];
+
+  for (const key of Object.keys(event)) {
+    if (!allowedFields.has(key)) {
+      issues.push(
+        issue(
+          key,
+          VALIDATION_ISSUE_CODES.UNSUPPORTED,
+          `${key} is not allowed on ${event.type} provider stream events`
+        )
+      );
+    }
+  }
+
+  return issues;
 }
 
 export function createProviderError({
@@ -312,23 +412,7 @@ export function validateProviderTextProposalBatch(batch, field = "providerTextPr
   }
 
   if (batch.usage !== undefined) {
-    issues.push(...requireRecord(batch.usage, `${field}.usage`));
-    if (isRecord(batch.usage)) {
-      issues.push(
-        ...requireInteger(batch.usage.inputTokens, `${field}.usage.inputTokens`, {
-          optional: true,
-          min: 0
-        }),
-        ...requireInteger(batch.usage.outputTokens, `${field}.usage.outputTokens`, {
-          optional: true,
-          min: 0
-        }),
-        ...requireInteger(batch.usage.totalTokens, `${field}.usage.totalTokens`, {
-          optional: true,
-          min: 0
-        })
-      );
-    }
+    issues.push(...validateProviderUsage(batch.usage, `${field}.usage`));
   }
 
   return validationResult(issues);

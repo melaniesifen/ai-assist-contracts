@@ -85,3 +85,23 @@ already sufficient and add only missing shared scenarios. They exclude OAuth
 tokens, authorization headers, provider keys, raw document text, selected text,
 prompts, model responses, screenshots, OCR, accessibility trees, and decrypted
 action payloads.
+
+## Assistant Stream Guidance
+
+Use `assistant-stream.fixtures.js` for generic ask-and-stream consumer tests.
+
+- `ai-assist-orchestration-service`: use assistant command, accepted response,
+  provider-neutral stream events, session event envelopes, and safe dependency
+  error fixtures when validating command-to-event handoff.
+- `ai-assist-session-events-service`: use progress, assistant delta, assistant
+  final, and safe error event fixtures when validating envelope and SSE
+  formatting behavior.
+- `ai-assist-openai-adapter` and `ai-assist-anthropic-adapter`: use the
+  provider-neutral stream fixtures for deterministic delta, final metadata, and
+  safe stream error contract tests.
+- `ai-assist-web`: use the session event fixtures for SSE reducer and rendering
+  tests.
+
+The assistant stream fixtures are synthetic and exclude provider keys, OAuth
+tokens, authorization headers, raw prompts, document text, selected text, full
+model responses, screenshots, OCR, accessibility trees, and action payloads.
