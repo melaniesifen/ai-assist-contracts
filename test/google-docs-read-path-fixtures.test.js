@@ -21,7 +21,6 @@ import {
 } from "../src/index.js";
 import {
   GOOGLE_DOCS_READ_PATH_FIXTURES,
-  M4_GOOGLE_DOCS_READ_PATH_FIXTURES,
   googleDocsActiveResourceReadContextResult,
   googleDocsReadPathConnectorFixtures,
   googleDocsReadPathResourceListResult,
@@ -128,8 +127,6 @@ test("Google Docs read-path fixtures expose stable names, versions, and validato
     assert.equal(typeof fixture.validator, "string");
     assert.equal(typeof VALIDATORS[fixture.validator], "function", fixture.validator);
   }
-
-  assert.equal(M4_GOOGLE_DOCS_READ_PATH_FIXTURES, GOOGLE_DOCS_READ_PATH_FIXTURES);
 });
 
 test("Google Docs read-path fixtures resolve through the public package boundary", async () => {

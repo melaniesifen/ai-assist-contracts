@@ -224,7 +224,7 @@ Consumer mapping:
   safe setup-error fixtures.
 - `ai-assist-web` for Milestone 3: composed first-run setup status fixtures for
   setup-state UI tests.
-- M4 Google Docs read-path consumers: use the shared `google-docs-read-path`
+- Google Docs read-path consumers: use the shared `google-docs-read-path`
   fixtures for context modes, consent states, resource list/read-context
   success, truncation, reconnect-required, permission, quota/rate-limit, and
   connector failure states.

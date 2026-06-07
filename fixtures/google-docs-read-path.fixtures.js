@@ -300,5 +300,3 @@ export const GOOGLE_DOCS_READ_PATH_FIXTURES = Object.freeze([
   googleOAuthReconnectRequiredFixture,
   ...googleDocsReadPathConnectorFixtures
 ]);
-
-export const M4_GOOGLE_DOCS_READ_PATH_FIXTURES = GOOGLE_DOCS_READ_PATH_FIXTURES;

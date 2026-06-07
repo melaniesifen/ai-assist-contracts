@@ -67,7 +67,7 @@ provider keys, ciphertext, raw document text, prompts, and model responses.
 ## Google Docs Read-Path Guidance
 
 Use `google-docs-read-path.fixtures.js` for shared Google Docs read-path
-consumer tests, including M4.
+consumer tests.
 
 - `ai-assist-context-service`: use active/missing/revoked/expired consent from
   M1 plus wrong-user and wrong-resource consent scenarios from the shared
