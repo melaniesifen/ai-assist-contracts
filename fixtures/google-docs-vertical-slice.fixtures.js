@@ -46,24 +46,24 @@ import {
   createUnsupportedContractVersionError
 } from "../src/index.js";
 
-export const M1_FIXTURE_NOW = "2026-06-02T18:00:00.000Z";
-export const M1_FIXTURE_EXPIRES_AT = "2026-06-03T18:00:00.000Z";
-export const M1_FIXTURE_CONTRACT_VERSION = createContractVersionRef();
+export const GOOGLE_DOCS_FIXTURE_NOW = "2026-06-02T18:00:00.000Z";
+export const GOOGLE_DOCS_FIXTURE_EXPIRES_AT = "2026-06-03T18:00:00.000Z";
+export const GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION = createContractVersionRef();
 
 export const googleDocsIdentityScope = createIdentityScope({
-  tenantId: "tenant_m1_demo",
-  userId: "user_m1_demo",
-  authSubject: "auth_subject_m1_demo",
-  requestId: "req_m1_demo",
-  correlationId: "corr_m1_demo"
+  tenantId: "tenant_google_docs_demo",
+  userId: "user_google_docs_demo",
+  authSubject: "auth_subject_google_docs_demo",
+  requestId: "req_google_docs_demo",
+  correlationId: "corr_google_docs_demo"
 });
 
 export const googleDocsResourceRef = createResourceRef({
   connector: CONNECTORS.GOOGLE_DOCS,
-  resourceId: "gdoc_m1_demo",
+  resourceId: "gdoc_google_docs_demo",
   resourceType: "document",
-  displayName: "M1 fixture document",
-  externalUrl: "https://docs.google.com/document/d/gdoc_m1_demo/edit"
+  displayName: "Google Docs fixture document",
+  externalUrl: "https://docs.google.com/document/d/gdoc_google_docs_demo/edit"
 });
 
 const selectionRange = createActionTargetRange({ start: 42, end: 64 });
@@ -74,7 +74,7 @@ function fixture({ name, taskArea, flow, validator, value }) {
     name,
     taskArea,
     flow,
-    contractVersion: M1_FIXTURE_CONTRACT_VERSION,
+    contractVersion: GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION,
     validator,
     value
   });
@@ -94,12 +94,12 @@ export const authenticatedCommandEnvelopeFixture = fixture({
   flow: "authenticated command envelope",
   validator: "validateHttpCommandRequest",
   value: createHttpCommandRequest({
-    contractVersion: M1_FIXTURE_CONTRACT_VERSION,
-    commandId: "cmd_m1_create_assistant",
+    contractVersion: GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION,
+    commandId: "cmd_google_docs_create_assistant",
     commandType: HTTP_COMMAND_TYPES.CREATE_ASSISTANT_COMMAND,
     identityScope: googleDocsIdentityScope,
     payload: {
-      sessionId: "session_m1_demo",
+      sessionId: "session_google_docs_demo",
       resourceId: googleDocsResourceRef.resourceId,
       contextMode: CONTEXT_MODES.SELECTION,
       provider: MODEL_PROVIDERS.OPENAI
@@ -114,11 +114,11 @@ export const unsupportedVersionCommandFixture = fixture({
   validator: "validateHttpCommandRequest",
   value: createHttpCommandRequest({
     contractVersion: createContractVersionRef({ major: 99, minor: 0, patch: 0 }),
-    commandId: "cmd_m1_unsupported_version",
+    commandId: "cmd_google_docs_unsupported_version",
     commandType: HTTP_COMMAND_TYPES.CREATE_ASSISTANT_COMMAND,
     identityScope: googleDocsIdentityScope,
     payload: {
-      sessionId: "session_m1_demo"
+      sessionId: "session_google_docs_demo"
     }
   })
 });
@@ -129,10 +129,10 @@ export const unsupportedVersionErrorResponseFixture = fixture({
   flow: "unsupported contract version error",
   validator: "validateHttpCommandResponse",
   value: createHttpCommandResponse({
-    contractVersion: M1_FIXTURE_CONTRACT_VERSION,
+    contractVersion: GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION,
     requestId: googleDocsIdentityScope.requestId,
     correlationId: googleDocsIdentityScope.correlationId,
-    commandId: "cmd_m1_unsupported_version",
+    commandId: "cmd_google_docs_unsupported_version",
     commandType: HTTP_COMMAND_TYPES.CREATE_ASSISTANT_COMMAND,
     status: HTTP_COMMAND_RESPONSE_STATUSES.REJECTED,
     error: createUnsupportedContractVersionError()
@@ -182,12 +182,12 @@ export const sessionSecretFixtures = Object.freeze([
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
       provider: MODEL_PROVIDERS.OPENAI,
-      secretId: "secret_m1_openai",
-      fingerprint: "fp_m1_openai",
+      secretId: "secret_google_docs_openai",
+      fingerprint: "fp_google_docs_openai",
       status: SESSION_SECRET_STATUSES.ACTIVE,
-      createdAt: M1_FIXTURE_NOW,
-      lastValidatedAt: M1_FIXTURE_NOW,
-      expiresAt: M1_FIXTURE_EXPIRES_AT
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
+      lastValidatedAt: GOOGLE_DOCS_FIXTURE_NOW,
+      expiresAt: GOOGLE_DOCS_FIXTURE_EXPIRES_AT
     })
   }),
   fixture({
@@ -213,12 +213,12 @@ export const sessionSecretFixtures = Object.freeze([
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
       provider: MODEL_PROVIDERS.OPENAI,
-      secretId: "secret_m1_invalid",
-      fingerprint: "fp_m1_invalid",
+      secretId: "secret_google_docs_invalid",
+      fingerprint: "fp_google_docs_invalid",
       status: SESSION_SECRET_STATUSES.VALIDATION_FAILED,
-      createdAt: M1_FIXTURE_NOW,
-      lastValidatedAt: M1_FIXTURE_NOW,
-      expiresAt: M1_FIXTURE_EXPIRES_AT
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
+      lastValidatedAt: GOOGLE_DOCS_FIXTURE_NOW,
+      expiresAt: GOOGLE_DOCS_FIXTURE_EXPIRES_AT
     })
   })
 ]);
@@ -229,7 +229,7 @@ export const activeConsentGrantFixture = fixture({
   flow: "active context consent grant",
   validator: "validateContextConsentGrantRef",
   value: createContextConsentGrantRef({
-    grantId: "grant_m1_google_docs_selection",
+    grantId: "grant_google_docs_google_docs_selection",
     tenantId: googleDocsIdentityScope.tenantId,
     userId: googleDocsIdentityScope.userId,
     provider: CONNECTORS.GOOGLE_DOCS,
@@ -237,8 +237,8 @@ export const activeConsentGrantFixture = fixture({
     contextMode: CONTEXT_MODES.SELECTION,
     scopes: Object.freeze(["documents.readonly"]),
     status: CONSENT_GRANT_STATUSES.ACTIVE,
-    grantedAt: M1_FIXTURE_NOW,
-    expiresAt: M1_FIXTURE_EXPIRES_AT
+    grantedAt: GOOGLE_DOCS_FIXTURE_NOW,
+    expiresAt: GOOGLE_DOCS_FIXTURE_EXPIRES_AT
   })
 });
 
@@ -288,19 +288,19 @@ export const consentErrorFixtures = Object.freeze([
 ]);
 
 export const selectionContext = createNormalizedContext({
-  contextId: "ctx_m1_selection",
+  contextId: "ctx_google_docs_selection",
   tenantId: googleDocsIdentityScope.tenantId,
   userId: googleDocsIdentityScope.userId,
-  sessionId: "session_m1_demo",
+  sessionId: "session_google_docs_demo",
   provider: CONNECTORS.GOOGLE_DOCS,
   resourceRef: googleDocsResourceRef,
   contextMode: CONTEXT_MODES.SELECTION,
   sourceType: CONTEXT_SOURCE_TYPES.CONNECTOR_SELECTION,
   trustLevel: CONTEXT_TRUST_LEVELS.CONNECTOR_VERIFIED,
   content: "<fixture selected excerpt>",
-  contentHash: "sha256:m1-selection",
+  contentHash: "sha256:google-docs-selection",
   anchors: [selectionRange],
-  resourceRevision: "rev_m1",
+  resourceRevision: "rev_google_docs",
   metadata: {
     truncated: false,
     contentLength: 26
@@ -310,23 +310,23 @@ export const selectionContext = createNormalizedContext({
     trustLevel: CONTEXT_TRUST_LEVELS.CONNECTOR_VERIFIED,
     connector: CONNECTORS.GOOGLE_DOCS,
     resourceId: googleDocsResourceRef.resourceId,
-    resourceVersion: "rev_m1",
+    resourceVersion: "rev_google_docs",
     selectionAnchor: selectionRange,
-    capturedAt: M1_FIXTURE_NOW,
+    capturedAt: GOOGLE_DOCS_FIXTURE_NOW,
     clientSupplied: false,
     connectorVerified: true
   }),
-  capturedAt: M1_FIXTURE_NOW,
-  expiresAt: M1_FIXTURE_EXPIRES_AT
+  capturedAt: GOOGLE_DOCS_FIXTURE_NOW,
+  expiresAt: GOOGLE_DOCS_FIXTURE_EXPIRES_AT
 });
 
 export const activeResourceContext = createNormalizedContext({
   ...selectionContext,
-  contextId: "ctx_m1_active_resource",
+  contextId: "ctx_google_docs_active_resource",
   contextMode: CONTEXT_MODES.ACTIVE_RESOURCE,
   sourceType: CONTEXT_SOURCE_TYPES.CONNECTOR_RESOURCE_EXCERPT,
   content: "<fixture active resource excerpt>",
-  contentHash: "sha256:m1-active-resource",
+  contentHash: "sha256:google-docs-active-resource",
   metadata: {
     truncated: false,
     contentLength: 33
@@ -336,8 +336,8 @@ export const activeResourceContext = createNormalizedContext({
     trustLevel: CONTEXT_TRUST_LEVELS.CONNECTOR_VERIFIED,
     connector: CONNECTORS.GOOGLE_DOCS,
     resourceId: googleDocsResourceRef.resourceId,
-    resourceVersion: "rev_m1",
-    capturedAt: M1_FIXTURE_NOW,
+    resourceVersion: "rev_google_docs",
+    capturedAt: GOOGLE_DOCS_FIXTURE_NOW,
     clientSupplied: false,
     connectorVerified: true
   })
@@ -345,9 +345,9 @@ export const activeResourceContext = createNormalizedContext({
 
 export const truncatedContext = createNormalizedContext({
   ...activeResourceContext,
-  contextId: "ctx_m1_truncated",
+  contextId: "ctx_google_docs_truncated",
   content: "<fixture truncated resource excerpt>",
-  contentHash: "sha256:m1-truncated",
+  contentHash: "sha256:google-docs-truncated",
   metadata: {
     truncated: true,
     contentLength: 34,
@@ -382,12 +382,12 @@ export const normalizedContextFixtures = Object.freeze([
 
 export const googleDocsResourceListResult = createConnectorResourceListResult({
   resources: [googleDocsResourceRef],
-  nextPageToken: "page_m1_next"
+  nextPageToken: "page_google_docs_next"
 });
 
 export const googleDocsReadContextResult = createConnectorReadContextResult({
   context: selectionContext,
-  resourceRevision: "rev_m1"
+  resourceRevision: "rev_google_docs"
 });
 
 export const googleConnectorFixtures = Object.freeze([
@@ -431,7 +431,7 @@ export const googleConnectorFixtures = Object.freeze([
       operation: CONNECTOR_OPERATIONS.READ_CONTEXT,
       status: CONNECTOR_RESPONSE_STATUSES.SUCCESS,
       requestId: googleDocsIdentityScope.requestId,
-      resourceRevision: "rev_m1",
+      resourceRevision: "rev_google_docs",
       result: googleDocsReadContextResult
     })
   }),
@@ -445,12 +445,12 @@ export const googleConnectorFixtures = Object.freeze([
       operation: CONNECTOR_OPERATIONS.VALIDATE_MUTATION_TARGET,
       status: CONNECTOR_RESPONSE_STATUSES.SUCCESS,
       requestId: googleDocsIdentityScope.requestId,
-      resourceRevision: "rev_m1",
+      resourceRevision: "rev_google_docs",
       result: {
         resourceId: googleDocsResourceRef.resourceId,
-        resourceRevision: "rev_m1",
+        resourceRevision: "rev_google_docs",
         targetRange: replacementRange,
-        originalTextHash: "sha256:m1-original",
+        originalTextHash: "sha256:google-docs-original",
         connectorVerified: true
       }
     })
@@ -534,14 +534,14 @@ export const googleConnectorFixtures = Object.freeze([
       operation: CONNECTOR_OPERATIONS.APPLY_MUTATION,
       status: CONNECTOR_RESPONSE_STATUSES.SUCCESS,
       requestId: googleDocsIdentityScope.requestId,
-      resourceRevision: "rev_m1_after_apply",
+      resourceRevision: "rev_google_docs_after_apply",
       result: {
-        actionId: "action_m1_review",
+        actionId: "action_review_replace",
         operationId: "google_docs_apply_m1",
         resourceId: googleDocsResourceRef.resourceId,
-        resourceRevision: "rev_m1_after_apply",
+        resourceRevision: "rev_google_docs_after_apply",
         status: PROPOSED_ACTION_STATUSES.APPLIED,
-        appliedAt: M1_FIXTURE_NOW
+        appliedAt: GOOGLE_DOCS_FIXTURE_NOW
       }
     })
   }),
@@ -555,7 +555,7 @@ export const googleConnectorFixtures = Object.freeze([
       operation: CONNECTOR_OPERATIONS.APPLY_MUTATION,
       status: CONNECTOR_RESPONSE_STATUSES.TERMINAL_ERROR,
       requestId: googleDocsIdentityScope.requestId,
-      resourceRevision: "rev_m1_changed",
+      resourceRevision: "rev_google_docs_changed",
       error: createConnectorError({
         category: CONNECTOR_ERROR_CATEGORIES.CONFLICT,
         code: "APPLY_TARGET_CONFLICTED",
@@ -566,20 +566,20 @@ export const googleConnectorFixtures = Object.freeze([
 ]);
 
 const providerProposalOne = createProviderTextProposal({
-  proposalId: "proposal_m1_one",
+  proposalId: "proposal_google_docs_one",
   actionType: PROPOSED_ACTION_TYPES.REPLACE_TEXT,
   currentText: "<fixture current text>",
   proposedText: "<fixture proposed text>",
   surroundingText: "<fixture surrounding context>",
   rationale: "Clarify the selected sentence.",
   targetHint: createProviderTextProposalTargetHint({
-    originalTextHash: "sha256:m1-original",
+    originalTextHash: "sha256:google-docs-original",
     targetRange: replacementRange
   })
 });
 
 const providerProposalTwo = createProviderTextProposal({
-  proposalId: "proposal_m1_two",
+  proposalId: "proposal_google_docs_two",
   actionType: PROPOSED_ACTION_TYPES.INSERT_TEXT,
   proposedText: "<fixture inserted text>",
   surroundingText: "<fixture second context>",
@@ -590,22 +590,22 @@ const providerProposalTwo = createProviderTextProposal({
 });
 
 const providerProposalOverlap = createProviderTextProposal({
-  proposalId: "proposal_m1_overlap",
+  proposalId: "proposal_google_docs_overlap",
   actionType: PROPOSED_ACTION_TYPES.REPLACE_TEXT,
   currentText: "<fixture overlapping current>",
   proposedText: "<fixture overlapping replacement>",
   surroundingText: "<fixture overlap context>",
   rationale: "This intentionally overlaps another proposed edit.",
   targetHint: createProviderTextProposalTargetHint({
-    originalTextHash: "sha256:m1-overlap",
+    originalTextHash: "sha256:google-docs-overlap",
     targetRange: createActionTargetRange({ start: 50, end: 70 })
   })
 });
 
 export const providerProposalBatch = createProviderTextProposalBatch({
   provider: MODEL_PROVIDERS.OPENAI,
-  model: "model_m1_fixture",
-  messageId: "msg_m1_provider",
+  model: "model_google_docs_fixture",
+  messageId: "msg_google_docs_provider",
   proposals: [providerProposalOne],
   usage: {
     inputTokens: 12,
@@ -623,8 +623,8 @@ export const providerFixtures = Object.freeze([
     value: createProviderResponse({
       provider: MODEL_PROVIDERS.OPENAI,
       status: PROVIDER_RESPONSE_STATUSES.SUCCESS,
-      model: "model_m1_fixture",
-      messageId: "msg_m1_validation",
+      model: "model_google_docs_fixture",
+      messageId: "msg_google_docs_validation",
       finishReason: "validated",
       usage: {
         inputTokens: 1,
@@ -641,7 +641,7 @@ export const providerFixtures = Object.freeze([
     value: createProviderResponse({
       provider: MODEL_PROVIDERS.OPENAI,
       status: PROVIDER_RESPONSE_STATUSES.TERMINAL_ERROR,
-      model: "model_m1_fixture",
+      model: "model_google_docs_fixture",
       error: createProviderError({
         category: PROVIDER_ERROR_CATEGORIES.AUTHENTICATION,
         code: "PROVIDER_AUTHENTICATION_FAILED",
@@ -663,8 +663,8 @@ export const providerFixtures = Object.freeze([
     validator: "validateProviderTextProposalBatch",
     value: createProviderTextProposalBatch({
       provider: MODEL_PROVIDERS.OPENAI,
-      model: "model_m1_fixture",
-      messageId: "msg_m1_provider_multi",
+      model: "model_google_docs_fixture",
+      messageId: "msg_google_docs_provider_multi",
       proposals: [providerProposalOne, providerProposalTwo],
       usage: {
         inputTokens: 18,
@@ -680,8 +680,8 @@ export const providerFixtures = Object.freeze([
     validator: "validateProviderTextProposalBatch",
     value: createProviderTextProposalBatch({
       provider: MODEL_PROVIDERS.OPENAI,
-      model: "model_m1_fixture",
-      messageId: "msg_m1_provider_overlap",
+      model: "model_google_docs_fixture",
+      messageId: "msg_google_docs_provider_overlap",
       proposals: [providerProposalOne, providerProposalOverlap],
       usage: {
         inputTokens: 18,
@@ -698,8 +698,8 @@ export const providerFixtures = Object.freeze([
     value: createProviderResponse({
       provider: MODEL_PROVIDERS.OPENAI,
       status: PROVIDER_RESPONSE_STATUSES.SUCCESS,
-      model: "model_m1_fixture",
-      messageId: "msg_m1_usage",
+      model: "model_google_docs_fixture",
+      messageId: "msg_google_docs_usage",
       finishReason: "stop",
       usage: {
         inputTokens: 20,
@@ -716,7 +716,7 @@ export const providerFixtures = Object.freeze([
     value: createProviderResponse({
       provider: MODEL_PROVIDERS.OPENAI,
       status: PROVIDER_RESPONSE_STATUSES.RETRYABLE_ERROR,
-      model: "model_m1_fixture",
+      model: "model_google_docs_fixture",
       error: createProviderError({
         category: PROVIDER_ERROR_CATEGORIES.RATE_LIMITED,
         code: "PROVIDER_RATE_LIMITED",
@@ -729,57 +729,57 @@ export const providerFixtures = Object.freeze([
 
 function actionReview(status, extra = {}) {
   return createProposedActionReviewRef({
-    actionId: extra.actionId ?? `action_m1_${status.toLowerCase()}`,
+    actionId: extra.actionId ?? `action_review_${status.toLowerCase()}`,
     actionType: PROPOSED_ACTION_TYPES.REPLACE_TEXT,
     status,
     resourceRef: googleDocsResourceRef,
     targetRange: replacementRange,
-    originalTextHash: "sha256:m1-original",
+    originalTextHash: "sha256:google-docs-original",
     currentText: "<fixture current text>",
     proposedText: "<fixture proposed text>",
     surroundingText: "<fixture surrounding context>",
     rationale: "Clarify the selected sentence.",
-    expiresAt: M1_FIXTURE_EXPIRES_AT,
+    expiresAt: GOOGLE_DOCS_FIXTURE_EXPIRES_AT,
     ...extra
   });
 }
 
 export const proposedActionReviewRef = actionReview(PROPOSED_ACTION_STATUSES.PROPOSED, {
-  actionId: "action_m1_review"
+  actionId: "action_review_replace"
 });
 
 export const approveActionCommand = createHttpCommandRequest({
-  contractVersion: M1_FIXTURE_CONTRACT_VERSION,
-  commandId: "cmd_m1_approve_action",
+  contractVersion: GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION,
+  commandId: "cmd_google_docs_approve_action",
   commandType: HTTP_COMMAND_TYPES.APPROVE_ACTION,
   identityScope: googleDocsIdentityScope,
   payload: createActionDecisionCommandPayload({
-    sessionId: "session_m1_demo",
+    sessionId: "session_google_docs_demo",
     actionId: proposedActionReviewRef.actionId,
     reasonCode: "USER_APPROVED"
   })
 });
 
 export const rejectActionCommand = createHttpCommandRequest({
-  contractVersion: M1_FIXTURE_CONTRACT_VERSION,
-  commandId: "cmd_m1_reject_action",
+  contractVersion: GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION,
+  commandId: "cmd_google_docs_reject_action",
   commandType: HTTP_COMMAND_TYPES.REJECT_ACTION,
   identityScope: googleDocsIdentityScope,
   payload: createActionDecisionCommandPayload({
-    sessionId: "session_m1_demo",
+    sessionId: "session_google_docs_demo",
     actionId: proposedActionReviewRef.actionId,
     reasonCode: "USER_REJECTED"
   })
 });
 
 export const applyActionCommand = createHttpCommandRequest({
-  contractVersion: M1_FIXTURE_CONTRACT_VERSION,
-  commandId: "cmd_m1_apply_action",
+  contractVersion: GOOGLE_DOCS_FIXTURE_CONTRACT_VERSION,
+  commandId: "cmd_google_docs_apply_action",
   commandType: HTTP_COMMAND_TYPES.APPLY_ACTION,
   identityScope: googleDocsIdentityScope,
-  idempotencyKey: "idem_m1_apply_action",
+  idempotencyKey: "idem_apply_action",
   payload: createApplyActionCommandPayload({
-    sessionId: "session_m1_demo",
+    sessionId: "session_google_docs_demo",
     actionId: proposedActionReviewRef.actionId
   })
 });
@@ -852,15 +852,15 @@ export const sessionEventFixtures = Object.freeze([
     flow: "assistant progress event",
     validator: "validateSessionEvent",
     value: createSessionEvent({
-      eventId: "evt_m1_progress",
+      eventId: "evt_google_docs_progress",
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
-      sessionId: "session_m1_demo",
+      sessionId: "session_google_docs_demo",
       requestId: googleDocsIdentityScope.requestId,
       correlationId: googleDocsIdentityScope.correlationId,
       type: SESSION_EVENT_TYPES.PROGRESS,
       sequence: 1,
-      createdAt: M1_FIXTURE_NOW,
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
       payload: {
         stage: "provider.generating",
         status: "in_progress",
@@ -874,17 +874,17 @@ export const sessionEventFixtures = Object.freeze([
     flow: "assistant final event metadata",
     validator: "validateSessionEvent",
     value: createSessionEvent({
-      eventId: "evt_m1_final",
+      eventId: "evt_google_docs_final",
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
-      sessionId: "session_m1_demo",
+      sessionId: "session_google_docs_demo",
       requestId: googleDocsIdentityScope.requestId,
       correlationId: googleDocsIdentityScope.correlationId,
       type: SESSION_EVENT_TYPES.ASSISTANT_FINAL,
       sequence: 2,
-      createdAt: M1_FIXTURE_NOW,
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
       payload: {
-        messageId: "msg_m1_provider",
+        messageId: "msg_google_docs_provider",
         finishReason: "stop"
       }
     })
@@ -895,21 +895,21 @@ export const sessionEventFixtures = Object.freeze([
     flow: "action proposed event",
     validator: "validateSessionEvent",
     value: createSessionEvent({
-      eventId: "evt_m1_action_proposed",
+      eventId: "evt_google_docs_action_proposed",
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
-      sessionId: "session_m1_demo",
+      sessionId: "session_google_docs_demo",
       requestId: googleDocsIdentityScope.requestId,
       correlationId: googleDocsIdentityScope.correlationId,
       type: SESSION_EVENT_TYPES.ACTION_PROPOSED,
       sequence: 3,
-      createdAt: M1_FIXTURE_NOW,
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
       payload: {
         actionId: proposedActionReviewRef.actionId,
         actionType: PROPOSED_ACTION_TYPES.REPLACE_TEXT,
         resourceRef: googleDocsResourceRef,
         summary: "Review one proposed edit.",
-        expiresAt: M1_FIXTURE_EXPIRES_AT
+        expiresAt: GOOGLE_DOCS_FIXTURE_EXPIRES_AT
       }
     })
   }),
@@ -919,15 +919,15 @@ export const sessionEventFixtures = Object.freeze([
     flow: "action status event",
     validator: "validateSessionEvent",
     value: createSessionEvent({
-      eventId: "evt_m1_action_status",
+      eventId: "evt_google_docs_action_status",
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
-      sessionId: "session_m1_demo",
+      sessionId: "session_google_docs_demo",
       requestId: googleDocsIdentityScope.requestId,
       correlationId: googleDocsIdentityScope.correlationId,
       type: SESSION_EVENT_TYPES.ACTION_STATUS_CHANGED,
       sequence: 4,
-      createdAt: M1_FIXTURE_NOW,
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
       payload: {
         actionId: proposedActionReviewRef.actionId,
         previousStatus: PROPOSED_ACTION_STATUSES.PROPOSED,
@@ -942,15 +942,15 @@ export const sessionEventFixtures = Object.freeze([
     flow: "typed error event",
     validator: "validateSessionEvent",
     value: createSessionEvent({
-      eventId: "evt_m1_error",
+      eventId: "evt_google_docs_error",
       tenantId: googleDocsIdentityScope.tenantId,
       userId: googleDocsIdentityScope.userId,
-      sessionId: "session_m1_demo",
+      sessionId: "session_google_docs_demo",
       requestId: googleDocsIdentityScope.requestId,
       correlationId: googleDocsIdentityScope.correlationId,
       type: SESSION_EVENT_TYPES.ERROR,
       sequence: 5,
-      createdAt: M1_FIXTURE_NOW,
+      createdAt: GOOGLE_DOCS_FIXTURE_NOW,
       payload: {
         errorCode: STANDARD_ERROR_CODES.CONNECTOR_OPERATION_FAILED,
         category: ERROR_CATEGORIES.DEPENDENCY,
@@ -1030,7 +1030,7 @@ export const operationsErrorFixtures = Object.freeze([
     value: createProviderResponse({
       provider: MODEL_PROVIDERS.OPENAI,
       status: PROVIDER_RESPONSE_STATUSES.RETRYABLE_ERROR,
-      model: "model_m1_fixture",
+      model: "model_google_docs_fixture",
       error: createProviderError({
         category: PROVIDER_ERROR_CATEGORIES.UNAVAILABLE,
         code: "PROVIDER_UNAVAILABLE",
@@ -1041,7 +1041,7 @@ export const operationsErrorFixtures = Object.freeze([
   })
 ]);
 
-export const M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES = Object.freeze([
+export const GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES = Object.freeze([
   verifiedAuthSubjectFixture,
   authenticatedCommandEnvelopeFixture,
   unsupportedVersionCommandFixture,

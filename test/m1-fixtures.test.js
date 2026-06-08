@@ -29,7 +29,7 @@ import {
   validateSupportedContractVersion
 } from "../src/index.js";
 import {
-  M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES,
+  GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES,
   activeConsentGrantFixture,
   applyActionCommand,
   authenticatedCommandEnvelopeFixture,
@@ -42,7 +42,7 @@ import {
   proposedActionFixtures,
   unsupportedVersionCommandFixture,
   unsupportedVersionErrorResponseFixture
-} from "../fixtures/m1-google-docs-vertical-slice.fixtures.js";
+} from "../fixtures/google-docs-vertical-slice.fixtures.js";
 
 const VALIDATORS = Object.freeze({
   validateConnectorResponse,
@@ -131,7 +131,7 @@ function byName(fixtures, name) {
 test("M1 fixtures expose stable names, versions, and validators", () => {
   const names = new Set();
 
-  for (const fixture of M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
+  for (const fixture of GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
     assert.equal(typeof fixture.name, "string");
     assert.equal(names.has(fixture.name), false, `duplicate fixture name ${fixture.name}`);
     names.add(fixture.name);
@@ -144,20 +144,20 @@ test("M1 fixtures expose stable names, versions, and validators", () => {
     assert.equal(typeof VALIDATORS[fixture.validator], "function", fixture.validator);
   }
 
-  assert.ok(M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES.length >= 40);
+  assert.ok(GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES.length >= 40);
 });
 
 test("M1 fixture validators resolve through the public package boundary", async () => {
   const contracts = await import("@ai-assist/contracts");
-  const fixtures = await import("@ai-assist/contracts/fixtures/m1-google-docs-vertical-slice");
+  const fixtures = await import("@ai-assist/contracts/fixtures/google-docs-vertical-slice");
 
-  for (const fixture of fixtures.M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
+  for (const fixture of fixtures.GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
     assert.equal(typeof contracts[fixture.validator], "function", fixture.validator);
   }
 });
 
 test("M1 fixtures validate against their declared contracts", () => {
-  for (const fixture of M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
+  for (const fixture of GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
     const validator = VALIDATORS[fixture.validator];
     const result = validator(fixture.value);
 
@@ -178,7 +178,7 @@ test("M1 fixtures validate against their declared contracts", () => {
 });
 
 test("M1 fixture payloads stay metadata-only where required", () => {
-  for (const fixture of M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
+  for (const fixture of GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
     assert.deepEqual(scanForbiddenContent(fixture.value), [], fixture.name);
   }
 
@@ -190,8 +190,8 @@ test("M1 fixture payloads stay metadata-only where required", () => {
 
 test("M1 authenticated mutation payloads do not require client-supplied identity facts", () => {
   assert.equal(validateHttpCommandRequest(authenticatedCommandEnvelopeFixture.value).valid, true);
-  assert.equal(authenticatedCommandEnvelopeFixture.value.identityScope.tenantId, "tenant_m1_demo");
-  assert.equal(authenticatedCommandEnvelopeFixture.value.identityScope.userId, "user_m1_demo");
+  assert.equal(authenticatedCommandEnvelopeFixture.value.identityScope.tenantId, "tenant_google_docs_demo");
+  assert.equal(authenticatedCommandEnvelopeFixture.value.identityScope.userId, "user_google_docs_demo");
   assert.equal(Object.hasOwn(authenticatedCommandEnvelopeFixture.value.payload, "tenantId"), false);
   assert.equal(Object.hasOwn(authenticatedCommandEnvelopeFixture.value.payload, "userId"), false);
 
@@ -317,7 +317,7 @@ test("M1 error fixtures use stable safe categories", () => {
   assert.equal(unsupportedRequest.valid, false);
   assert.equal(unsupportedRequest.issues[0].field, "contractVersion");
 
-  for (const fixture of M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
+  for (const fixture of GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES) {
     if (fixture.validator === "validateContractError") {
       assert.equal(validateContractError(fixture.value).valid, true, fixture.name);
     }
@@ -327,8 +327,8 @@ test("M1 error fixtures use stable safe categories", () => {
 test("M1 context consent fixture captures current shared grant shape until full model lands", () => {
   assert.equal(validateContextConsentGrantRef(activeConsentGrantFixture.value).valid, true);
   assert.equal(activeConsentGrantFixture.value.status, "active");
-  assert.equal(activeConsentGrantFixture.value.tenantId, "tenant_m1_demo");
-  assert.equal(activeConsentGrantFixture.value.userId, "user_m1_demo");
+  assert.equal(activeConsentGrantFixture.value.tenantId, "tenant_google_docs_demo");
+  assert.equal(activeConsentGrantFixture.value.userId, "user_google_docs_demo");
   assert.equal(activeConsentGrantFixture.value.resourceRef.resourceId, googleDocsResourceRef.resourceId);
   assert.equal(Object.hasOwn(activeConsentGrantFixture.value, "documentText"), false);
 });

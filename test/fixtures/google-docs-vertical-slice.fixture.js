@@ -1,6 +1,6 @@
 export {
-  M1_FIXTURE_EXPIRES_AT as FIXTURE_EXPIRES_AT,
-  M1_FIXTURE_NOW as FIXTURE_NOW,
+  GOOGLE_DOCS_FIXTURE_EXPIRES_AT as FIXTURE_EXPIRES_AT,
+  GOOGLE_DOCS_FIXTURE_NOW as FIXTURE_NOW,
   applyActionCommand,
   googleDocsIdentityScope,
   googleDocsReadContextResult,
@@ -8,4 +8,4 @@ export {
   googleDocsResourceRef,
   providerProposalBatch,
   proposedActionReviewRef
-} from "../../fixtures/m1-google-docs-vertical-slice.fixtures.js";
+} from "../../fixtures/google-docs-vertical-slice.fixtures.js";

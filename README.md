@@ -174,19 +174,19 @@ The Milestone 1 Google Docs vertical slice is exported as:
 
 ```js
 import {
-  M1_GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES,
+  GOOGLE_DOCS_VERTICAL_SLICE_FIXTURES,
   applyActionCommand,
   proposedActionReviewRef
-} from "@ai-assist/contracts/fixtures/m1-google-docs-vertical-slice";
+} from "@ai-assist/contracts/fixtures/google-docs-vertical-slice";
 ```
 
 The Milestone 3 first-run setup slice is exported as:
 
 ```js
 import {
-  M3_FIRST_RUN_SETUP_FIXTURES,
+  FIRST_RUN_SETUP_FIXTURES,
   firstRunSetupReadyFixture
-} from "@ai-assist/contracts/fixtures/m3-first-run-setup";
+} from "@ai-assist/contracts/fixtures/first-run-setup";
 ```
 
 The shared Google Docs read-path fixture surface is exported as:

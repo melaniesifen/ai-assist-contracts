@@ -25,10 +25,10 @@ import {
   googleDocsResourceRef,
   normalizedContextFixtures,
   truncatedContext
-} from "./m1-google-docs-vertical-slice.fixtures.js";
+} from "./google-docs-vertical-slice.fixtures.js";
 import {
   googleOAuthReconnectRequiredFixture
-} from "./m3-first-run-setup.fixtures.js";
+} from "./first-run-setup.fixtures.js";
 
 export const GOOGLE_DOCS_READ_PATH_FIXTURE_CONTRACT_VERSION = createContractVersionRef();
 

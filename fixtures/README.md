@@ -26,9 +26,9 @@ Each fixture object includes:
 - `validator`: expected JavaScript validator name
 - `value`: the contract payload
 
-## M1 Consumer Guidance
+## Google Docs Vertical Slice Consumer Guidance
 
-Use `m1-google-docs-vertical-slice.fixtures.js` for Milestone 1 and follow-on
+Use `google-docs-vertical-slice.fixtures.js` for Google Docs and follow-on
 Google Docs vertical-slice work.
 
 - `ai-assist-web`: use action review, approve/reject/apply command, typed error,
@@ -49,9 +49,9 @@ Fixtures must remain synthetic and metadata-only where possible. Do not add
 provider keys, OAuth tokens, raw prompts, full document text, model responses,
 or decrypted action payload plaintext.
 
-## M3 Consumer Guidance
+## First-Run Setup Consumer Guidance
 
-Use `m3-first-run-setup.fixtures.js` for Milestone 3 first-run setup work.
+Use `first-run-setup.fixtures.js` for first-run setup work.
 
 - `ai-assist-auth-service`: use product session status and Google OAuth
   connection status fixtures for `/auth/session` and `/oauth/google/status`
@@ -61,7 +61,7 @@ Use `m3-first-run-setup.fixtures.js` for Milestone 3 first-run setup work.
 - `ai-assist-web`: use composed first-run setup status fixtures for onboarding
   and setup UI state tests.
 
-The M3 fixtures intentionally exclude OAuth tokens, authorization codes,
+The first-run setup fixtures intentionally exclude OAuth tokens, authorization codes,
 provider keys, ciphertext, raw document text, prompts, and model responses.
 
 ## Google Docs Read-Path Guidance
@@ -70,7 +70,7 @@ Use `google-docs-read-path.fixtures.js` for shared Google Docs read-path
 consumer tests.
 
 - `ai-assist-context-service`: use active/missing/revoked/expired consent from
-  M1 plus wrong-user and wrong-resource consent scenarios from the shared
+  Google Docs vertical-slice plus wrong-user and wrong-resource consent scenarios from the shared
   read-path fixtures.
 - `ai-assist-google-docs-adapter`: use resource discovery, `SELECTION`,
   `ACTIVE_RESOURCE`, truncated context, permission, quota/rate-limit, timeout,
@@ -80,7 +80,7 @@ consumer tests.
 - `ai-assist-web`: use the same read-path fixtures for readiness and failure UI
   state tests without inventing local mock shapes.
 
-The read-path fixtures intentionally reuse M1/M3 fixture values where they are
+The read-path fixtures intentionally reuse Google Docs vertical-slice and setup fixture values where they are
 already sufficient and add only missing shared scenarios. They exclude OAuth
 tokens, authorization headers, provider keys, raw document text, selected text,
 prompts, model responses, screenshots, OCR, accessibility trees, and decrypted

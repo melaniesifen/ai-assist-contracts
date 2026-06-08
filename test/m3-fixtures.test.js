@@ -18,12 +18,12 @@ import {
   validateSupportedContractVersion
 } from "../src/index.js";
 import {
-  M3_FIRST_RUN_SETUP_FIXTURES,
+  FIRST_RUN_SETUP_FIXTURES,
   firstRunSetupNeedsUserActionFixture,
   firstRunSetupReadyFixture,
   googleOAuthConnectedFixture,
   providerSecretValidFixture
-} from "../fixtures/m3-first-run-setup.fixtures.js";
+} from "../fixtures/first-run-setup.fixtures.js";
 
 const VALIDATORS = Object.freeze({
   validateFirstRunSetupStatus,
@@ -76,7 +76,7 @@ function scanForbiddenContent(value, path = "fixture") {
 test("M3 fixtures expose stable names, versions, and validators", () => {
   const names = new Set();
 
-  for (const fixture of M3_FIRST_RUN_SETUP_FIXTURES) {
+  for (const fixture of FIRST_RUN_SETUP_FIXTURES) {
     assert.equal(typeof fixture.name, "string");
     assert.equal(names.has(fixture.name), false, `duplicate fixture name ${fixture.name}`);
     names.add(fixture.name);
@@ -92,15 +92,15 @@ test("M3 fixtures expose stable names, versions, and validators", () => {
 
 test("M3 fixture validators resolve through the public package boundary", async () => {
   const contracts = await import("@ai-assist/contracts");
-  const fixtures = await import("@ai-assist/contracts/fixtures/m3-first-run-setup");
+  const fixtures = await import("@ai-assist/contracts/fixtures/first-run-setup");
 
-  for (const fixture of fixtures.M3_FIRST_RUN_SETUP_FIXTURES) {
+  for (const fixture of fixtures.FIRST_RUN_SETUP_FIXTURES) {
     assert.equal(typeof contracts[fixture.validator], "function", fixture.validator);
   }
 });
 
 test("M3 fixtures validate against their declared contracts", () => {
-  for (const fixture of M3_FIRST_RUN_SETUP_FIXTURES) {
+  for (const fixture of FIRST_RUN_SETUP_FIXTURES) {
     const validator = VALIDATORS[fixture.validator];
     const result = validator(fixture.value);
 
@@ -109,7 +109,7 @@ test("M3 fixtures validate against their declared contracts", () => {
 });
 
 test("M3 setup fixtures stay metadata-only", () => {
-  for (const fixture of M3_FIRST_RUN_SETUP_FIXTURES) {
+  for (const fixture of FIRST_RUN_SETUP_FIXTURES) {
     assert.deepEqual(scanForbiddenContent(fixture.value), [], fixture.name);
   }
 

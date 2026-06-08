@@ -66,6 +66,7 @@ Sources:
 - [x] M6-T1 / `ACTION-003`: Add generic approve/reject decision command fixtures.
 - [x] M6-T1 / `EVT-002`: Add generic `action.proposed` and `action.status_changed` session event fixtures.
 - [x] M6-T1 / `OPS-004` / `SAFE-003`: Add a metadata-only cross-scope denial fixture and leak tests for proposed-action fixtures.
+- [x] M6-T1b: Rename consumer fixture import paths and exported fixture constants from milestone labels to product-generic names.
 
 ## Pending Architecture Tasks
 

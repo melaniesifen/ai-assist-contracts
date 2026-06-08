@@ -21,68 +21,68 @@ import {
   createSetupErrorRef
 } from "../src/index.js";
 
-export const M3_FIXTURE_NOW = "2026-06-06T18:00:00.000Z";
-export const M3_FIXTURE_SESSION_EXPIRES_AT = "2026-06-06T20:00:00.000Z";
-export const M3_FIXTURE_SECRET_EXPIRES_AT = "2026-06-07T02:00:00.000Z";
-export const M3_FIXTURE_CONTRACT_VERSION = createContractVersionRef();
+export const SETUP_FIXTURE_NOW = "2026-06-06T18:00:00.000Z";
+export const SETUP_FIXTURE_SESSION_EXPIRES_AT = "2026-06-06T20:00:00.000Z";
+export const SETUP_FIXTURE_SECRET_EXPIRES_AT = "2026-06-07T02:00:00.000Z";
+export const SETUP_FIXTURE_CONTRACT_VERSION = createContractVersionRef();
 
 function fixture({ name, taskArea, flow, validator, value }) {
   return Object.freeze({
     name,
     taskArea,
     flow,
-    contractVersion: M3_FIXTURE_CONTRACT_VERSION,
+    contractVersion: SETUP_FIXTURE_CONTRACT_VERSION,
     validator,
     value
   });
 }
 
-export const m3GoogleDocsResourceRef = createResourceRef({
+export const setupGoogleDocsResourceRef = createResourceRef({
   connector: CONNECTORS.GOOGLE_DOCS,
-  resourceId: "gdoc_m3_demo",
+  resourceId: "gdoc_setup_demo",
   resourceType: "document",
-  displayName: "M3 setup fixture document"
+  displayName: "Setup fixture document"
 });
 
 export const authenticatedProductSessionFixture = fixture({
   name: "setup-product-session-authenticated",
-  taskArea: "AUTH-002 M3",
+  taskArea: "AUTH-002",
   flow: "first-run product session status",
   validator: "validateProductSessionStatusRef",
   value: createProductSessionStatusRef({
     status: PRODUCT_SESSION_STATUSES.AUTHENTICATED,
-    tenantId: "tenant_m3_demo",
-    userId: "user_m3_demo",
-    authSubject: "auth_subject_m3_demo",
-    sessionId: "session_m3_demo",
-    expiresAt: M3_FIXTURE_SESSION_EXPIRES_AT
+    tenantId: "tenant_setup_demo",
+    userId: "user_setup_demo",
+    authSubject: "auth_subject_setup_demo",
+    sessionId: "session_setup_demo",
+    expiresAt: SETUP_FIXTURE_SESSION_EXPIRES_AT
   })
 });
 
 export const googleOAuthConnectedFixture = fixture({
   name: "setup-google-oauth-connected",
-  taskArea: "AUTH-003 M3",
+  taskArea: "AUTH-003",
   flow: "Google OAuth connection status",
   validator: "validateGoogleOAuthConnectionStatusRef",
   value: createGoogleOAuthConnectionStatusRef({
     provider: OAUTH_PROVIDERS.GOOGLE,
     status: GOOGLE_OAUTH_CONNECTION_STATUSES.CONNECTED,
-    googleAccountId: "google_account_m3_demo",
+    googleAccountId: "google_account_setup_demo",
     scopes: Object.freeze(["https://www.googleapis.com/auth/documents"]),
-    connectedAt: M3_FIXTURE_NOW,
-    expiresAt: M3_FIXTURE_SESSION_EXPIRES_AT
+    connectedAt: SETUP_FIXTURE_NOW,
+    expiresAt: SETUP_FIXTURE_SESSION_EXPIRES_AT
   })
 });
 
 export const googleOAuthReconnectRequiredFixture = fixture({
   name: "setup-google-oauth-reconnect-required",
-  taskArea: "AUTH-003 M3",
+  taskArea: "AUTH-003",
   flow: "Google OAuth reconnect required status",
   validator: "validateGoogleOAuthConnectionStatusRef",
   value: createGoogleOAuthConnectionStatusRef({
     provider: OAUTH_PROVIDERS.GOOGLE,
     status: GOOGLE_OAUTH_CONNECTION_STATUSES.RECONNECT_REQUIRED,
-    googleAccountId: "google_account_m3_demo",
+    googleAccountId: "google_account_setup_demo",
     error: createContractError({
       code: STANDARD_ERROR_CODES.OAUTH_RECONNECT_REQUIRED,
       category: ERROR_CATEGORIES.OAUTH,
@@ -96,28 +96,28 @@ export const googleOAuthReconnectRequiredFixture = fixture({
 
 export const providerSecretValidFixture = fixture({
   name: "setup-provider-secret-valid-openai",
-  taskArea: "AUTH-004 AUTH-005 M3",
+  taskArea: "AUTH-004 AUTH-005",
   flow: "provider secret readiness status",
   validator: "validateProviderSecretReadinessRef",
   value: createProviderSecretReadinessRef({
     provider: MODEL_PROVIDERS.OPENAI,
     status: PROVIDER_SECRET_READINESS_STATUSES.VALID,
-    secretId: "secret_m3_openai",
-    fingerprint: "fp_m3_openai",
-    lastValidatedAt: M3_FIXTURE_NOW,
-    expiresAt: M3_FIXTURE_SECRET_EXPIRES_AT
+    secretId: "secret_setup_openai",
+    fingerprint: "fp_setup_openai",
+    lastValidatedAt: SETUP_FIXTURE_NOW,
+    expiresAt: SETUP_FIXTURE_SECRET_EXPIRES_AT
   })
 });
 
 export const providerSecretInvalidFixture = fixture({
   name: "setup-provider-secret-invalid-anthropic",
-  taskArea: "AUTH-005 M3",
+  taskArea: "AUTH-005",
   flow: "invalid provider secret readiness status",
   validator: "validateProviderSecretReadinessRef",
   value: createProviderSecretReadinessRef({
     provider: MODEL_PROVIDERS.ANTHROPIC,
     status: PROVIDER_SECRET_READINESS_STATUSES.INVALID,
-    lastValidatedAt: M3_FIXTURE_NOW,
+    lastValidatedAt: SETUP_FIXTURE_NOW,
     error: createContractError({
       code: "PROVIDER_SECRET_INVALID",
       category: ERROR_CATEGORIES.AUTHENTICATION,
@@ -131,22 +131,22 @@ export const providerSecretInvalidFixture = fixture({
 
 export const resourceSessionReadyFixture = fixture({
   name: "setup-resource-session-ready-google-docs",
-  taskArea: "CTX-005 M3",
+  taskArea: "CTX-005",
   flow: "resource-session readiness status",
   validator: "validateResourceSessionReadinessRef",
   value: createResourceSessionReadinessRef({
     status: RESOURCE_SESSION_READINESS_STATUSES.READY,
-    sessionId: "resource_session_m3_demo",
-    resourceRef: m3GoogleDocsResourceRef,
-    resourceRevision: "rev_m3_demo",
-    createdAt: M3_FIXTURE_NOW
+    sessionId: "resource_session_setup_demo",
+    resourceRef: setupGoogleDocsResourceRef,
+    resourceRevision: "rev_setup_demo",
+    createdAt: SETUP_FIXTURE_NOW
   })
 });
 
 export const setupErrorFixtures = Object.freeze([
   fixture({
     name: "setup-error-product-session-required",
-    taskArea: "AUTH-002 M3",
+    taskArea: "AUTH-002",
     flow: "safe setup error",
     validator: "validateSetupErrorRef",
     value: createSetupErrorRef({
@@ -159,7 +159,7 @@ export const setupErrorFixtures = Object.freeze([
   }),
   fixture({
     name: "setup-error-product-session-expired",
-    taskArea: "AUTH-002 M3",
+    taskArea: "AUTH-002",
     flow: "safe setup error",
     validator: "validateSetupErrorRef",
     value: createSetupErrorRef({
@@ -172,7 +172,7 @@ export const setupErrorFixtures = Object.freeze([
   }),
   fixture({
     name: "setup-error-provider-secret-expired",
-    taskArea: "AUTH-004 M3",
+    taskArea: "AUTH-004",
     flow: "safe setup error",
     validator: "validateSetupErrorRef",
     value: createSetupErrorRef({
@@ -191,7 +191,7 @@ export const setupErrorFixtures = Object.freeze([
 
 export const firstRunSetupReadyFixture = fixture({
   name: "setup-first-run-ready",
-  taskArea: "M3",
+  taskArea: "SETUP",
   flow: "first-run setup status",
   validator: "validateFirstRunSetupStatus",
   value: createFirstRunSetupStatus({
@@ -200,13 +200,13 @@ export const firstRunSetupReadyFixture = fixture({
     providerSecrets: Object.freeze([providerSecretValidFixture.value]),
     resourceSession: resourceSessionReadyFixture.value,
     errors: Object.freeze([]),
-    updatedAt: M3_FIXTURE_NOW
+    updatedAt: SETUP_FIXTURE_NOW
   })
 });
 
 export const firstRunSetupNeedsUserActionFixture = fixture({
   name: "setup-first-run-needs-user-action",
-  taskArea: "M3",
+  taskArea: "SETUP",
   flow: "first-run setup status",
   validator: "validateFirstRunSetupStatus",
   value: createFirstRunSetupStatus({
@@ -234,11 +234,11 @@ export const firstRunSetupNeedsUserActionFixture = fixture({
       setupErrorFixtures[1].value,
       setupErrorFixtures[2].value
     ]),
-    updatedAt: M3_FIXTURE_NOW
+    updatedAt: SETUP_FIXTURE_NOW
   })
 });
 
-export const M3_FIRST_RUN_SETUP_FIXTURES = Object.freeze([
+export const FIRST_RUN_SETUP_FIXTURES = Object.freeze([
   authenticatedProductSessionFixture,
   googleOAuthConnectedFixture,
   googleOAuthReconnectRequiredFixture,
