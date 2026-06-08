@@ -60,6 +60,13 @@ Sources:
 - [x] M5-T1 / `EVT-002`: Add shared session event fixtures for progress, assistant delta, assistant final, and safe typed errors.
 - [x] M5-T1 / `OPS-003` / `SAFE-003`: Keep assistant stream fixtures synthetic and covered by fixture leak tests.
 
+## Completed Proposed-Action Fixture Foundation
+
+- [x] M6-T1 / `ACTION-001`: Confirm generic proposed-action record and review refs cover proposed, approved, rejected, and expired states.
+- [x] M6-T1 / `ACTION-003`: Add generic approve/reject decision command fixtures.
+- [x] M6-T1 / `EVT-002`: Add generic `action.proposed` and `action.status_changed` session event fixtures.
+- [x] M6-T1 / `OPS-004` / `SAFE-003`: Add a metadata-only cross-scope denial fixture and leak tests for proposed-action fixtures.
+
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.

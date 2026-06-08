@@ -17,6 +17,7 @@
     "./fixtures/google-docs-read-path": "./fixtures/google-docs-read-path.fixtures.js",
     "./fixtures/m1-google-docs-vertical-slice": "./fixtures/m1-google-docs-vertical-slice.fixtures.js",
     "./fixtures/m3-first-run-setup": "./fixtures/m3-first-run-setup.fixtures.js",
+    "./fixtures/proposed-actions": "./fixtures/proposed-actions.fixtures.js",
     "./identity": "./src/identity.js",
     "./logging": "./src/logging.js",
     "./providers": "./src/providers.js",

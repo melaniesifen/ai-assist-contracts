@@ -34,6 +34,8 @@ Included contracts:
 - Source compatibility fixtures for the Milestone 1 Google Docs
   read/propose/review/apply contract slice and shared Google Docs read-path
   consumer tests.
+- Generic proposed-action fixtures for creation, review lifecycle,
+  approve/reject decisions, status events, expiry, and safe denial errors.
 
 Not included:
 
@@ -204,6 +206,16 @@ import {
   providerStreamFixtures,
   assistantSessionEventFixtures
 } from "@ai-assist/contracts/fixtures/assistant-stream";
+```
+
+The shared proposed-action fixture surface is exported as:
+
+```js
+import {
+  PROPOSED_ACTION_FIXTURES,
+  actionStatusEventFixtures,
+  approveActionCommandFixture
+} from "@ai-assist/contracts/fixtures/proposed-actions";
 ```
 
 Fixture names use:
