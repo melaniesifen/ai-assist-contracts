@@ -105,3 +105,22 @@ Use `assistant-stream.fixtures.js` for generic ask-and-stream consumer tests.
 The assistant stream fixtures are synthetic and exclude provider keys, OAuth
 tokens, authorization headers, raw prompts, document text, selected text, full
 model responses, screenshots, OCR, accessibility trees, and action payloads.
+
+## Proposed Action And Apply Guidance
+
+Use `proposed-actions.fixtures.js` for generic proposed-action lifecycle and
+safe apply-action consumer tests.
+
+- `ai-assist-orchestration-service`: use apply command, apply result, duplicate
+  replay, conflict/no-mutation, failed apply, safe denial, and reconnect-required
+  response fixtures.
+- `ai-assist-session-events-service`: use `action.status_changed` fixtures for
+  approved, rejected, expired, applied, conflicted, and failed transitions.
+- `ai-assist-web`: use review refs, apply result responses, safe errors, and
+  status events to render proposed, applied, conflicted, failed, and reconnect
+  states.
+
+The apply fixtures are synthetic and metadata-only. They identify actions,
+sessions, idempotency keys, operation IDs, resource revisions, status, and
+reason codes, but they do not include raw document text, replacement text,
+OAuth tokens, provider keys, authorization headers, or decrypted action payloads.

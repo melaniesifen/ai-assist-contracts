@@ -9,6 +9,7 @@ import {
   STANDARD_ERROR_CODES,
   createActionDecisionCommandPayload,
   createActionTargetRange,
+  createApplyActionCommandPayload,
   createContractError,
   createContractVersionRef,
   createHttpCommandRequest,
@@ -119,6 +120,48 @@ function statusEvent({ eventId, previousStatus, status, reasonCode, sequence }) 
   });
 }
 
+function applyResult({
+  status,
+  idempotencyKey = "idem_apply_action_demo",
+  replayed = false,
+  operationId,
+  conflictReasonCode,
+  failureCode,
+  resourceRevision
+}) {
+  return {
+    actionId: "action_proposed_action_demo",
+    sessionId: "session_proposed_action_demo",
+    resourceId: proposedActionResourceRef.resourceId,
+    status,
+    idempotencyKey,
+    replayed,
+    ...(operationId === undefined ? {} : { operationId }),
+    ...(conflictReasonCode === undefined ? {} : { conflictReasonCode }),
+    ...(failureCode === undefined ? {} : { failureCode }),
+    ...(resourceRevision === undefined ? {} : { resourceRevision }),
+    resultRecordedAt: PROPOSED_ACTION_FIXTURE_UPDATED_AT
+  };
+}
+
+function applyResponse({ name, flow, result }) {
+  return fixture({
+    name,
+    taskArea: "M7-T1 ACTION-004 EVT-001",
+    flow,
+    validator: "validateHttpCommandResponse",
+    value: createHttpCommandResponse({
+      contractVersion: PROPOSED_ACTION_FIXTURE_CONTRACT_VERSION,
+      requestId: proposedActionIdentityScope.requestId,
+      correlationId: proposedActionIdentityScope.correlationId,
+      commandId: "cmd_proposed_action_apply",
+      commandType: HTTP_COMMAND_TYPES.APPLY_ACTION,
+      status: HTTP_COMMAND_RESPONSE_STATUSES.COMPLETED,
+      result
+    })
+  });
+}
+
 export const proposedActionRefFixture = fixture({
   name: "proposed-action-record-proposed",
   taskArea: "ACTION-001",
@@ -196,6 +239,63 @@ export const rejectActionCommandFixture = fixture({
   })
 });
 
+export const applyActionCommandFixture = fixture({
+  name: "action-command-apply-idempotent",
+  taskArea: "M7-T1 ACTION-004 EVT-001",
+  flow: "apply action command",
+  validator: "validateHttpCommandRequest",
+  value: createHttpCommandRequest({
+    contractVersion: PROPOSED_ACTION_FIXTURE_CONTRACT_VERSION,
+    commandId: "cmd_proposed_action_apply",
+    commandType: HTTP_COMMAND_TYPES.APPLY_ACTION,
+    identityScope: proposedActionIdentityScope,
+    idempotencyKey: "idem_apply_action_demo",
+    payload: createApplyActionCommandPayload({
+      sessionId: "session_proposed_action_demo",
+      actionId: "action_proposed_action_demo"
+    })
+  })
+});
+
+export const applyActionResultResponseFixtures = Object.freeze([
+  applyResponse({
+    name: "action-apply-result-applied",
+    flow: "successful apply result",
+    result: applyResult({
+      status: PROPOSED_ACTION_STATUSES.APPLIED,
+      operationId: "operation_apply_demo",
+      resourceRevision: "revision_after_apply_demo"
+    })
+  }),
+  applyResponse({
+    name: "action-apply-result-duplicate-replay",
+    flow: "same-key duplicate apply replay",
+    result: applyResult({
+      status: PROPOSED_ACTION_STATUSES.APPLIED,
+      replayed: true,
+      operationId: "operation_apply_demo",
+      resourceRevision: "revision_after_apply_demo"
+    })
+  }),
+  applyResponse({
+    name: "action-apply-result-conflict-no-mutation",
+    flow: "stale target conflict with no mutation",
+    result: applyResult({
+      status: PROPOSED_ACTION_STATUSES.CONFLICTED,
+      conflictReasonCode: "STALE_RESOURCE_REVISION",
+      resourceRevision: "revision_changed_demo"
+    })
+  }),
+  applyResponse({
+    name: "action-apply-result-failed",
+    flow: "failed apply result",
+    result: applyResult({
+      status: PROPOSED_ACTION_STATUSES.FAILED,
+      failureCode: STANDARD_ERROR_CODES.CONNECTOR_OPERATION_FAILED
+    })
+  })
+]);
+
 export const crossScopeDeniedResponseFixture = fixture({
   name: "safe-error-cross-scope-denied",
   taskArea: "ACTION-003 OPS-004 SAFE-003",
@@ -215,6 +315,29 @@ export const crossScopeDeniedResponseFixture = fixture({
       retryable: false,
       httpStatus: 403,
       target: "actionId"
+    })
+  })
+});
+
+export const reconnectRequiredApplyResponseFixture = fixture({
+  name: "safe-error-reconnect-required-apply",
+  taskArea: "M7-T1 AUTH-003 ACTION-004 OPS-004 SAFE-003",
+  flow: "apply action reconnect-required safe error",
+  validator: "validateHttpCommandResponse",
+  value: createHttpCommandResponse({
+    contractVersion: PROPOSED_ACTION_FIXTURE_CONTRACT_VERSION,
+    requestId: proposedActionIdentityScope.requestId,
+    correlationId: proposedActionIdentityScope.correlationId,
+    commandId: "cmd_proposed_action_apply_reconnect_required",
+    commandType: HTTP_COMMAND_TYPES.APPLY_ACTION,
+    status: HTTP_COMMAND_RESPONSE_STATUSES.REJECTED,
+    error: createContractError({
+      code: STANDARD_ERROR_CODES.OAUTH_RECONNECT_REQUIRED,
+      category: ERROR_CATEGORIES.OAUTH,
+      message: "Reconnect Google before applying this action.",
+      retryable: false,
+      httpStatus: 401,
+      target: "googleOAuth"
     })
   })
 });
@@ -283,6 +406,45 @@ export const actionStatusEventFixtures = Object.freeze([
       reasonCode: "ACTION_EXPIRED",
       sequence: 4
     })
+  }),
+  fixture({
+    name: "action-status-changed-applied",
+    taskArea: "M7-T1 EVT-002 ACTION-004",
+    flow: "action applied status event",
+    validator: "validateSessionEvent",
+    value: statusEvent({
+      eventId: "evt_action_status_applied",
+      previousStatus: PROPOSED_ACTION_STATUSES.APPROVED,
+      status: PROPOSED_ACTION_STATUSES.APPLIED,
+      reasonCode: "APPLY_SUCCEEDED",
+      sequence: 5
+    })
+  }),
+  fixture({
+    name: "action-status-changed-conflicted",
+    taskArea: "M7-T1 EVT-002 ACTION-004",
+    flow: "action conflicted status event",
+    validator: "validateSessionEvent",
+    value: statusEvent({
+      eventId: "evt_action_status_conflicted",
+      previousStatus: PROPOSED_ACTION_STATUSES.APPROVED,
+      status: PROPOSED_ACTION_STATUSES.CONFLICTED,
+      reasonCode: "STALE_RESOURCE_REVISION",
+      sequence: 6
+    })
+  }),
+  fixture({
+    name: "action-status-changed-failed",
+    taskArea: "M7-T1 EVT-002 ACTION-004",
+    flow: "action failed status event",
+    validator: "validateSessionEvent",
+    value: statusEvent({
+      eventId: "evt_action_status_failed",
+      previousStatus: PROPOSED_ACTION_STATUSES.APPROVED,
+      status: PROPOSED_ACTION_STATUSES.FAILED,
+      reasonCode: STANDARD_ERROR_CODES.CONNECTOR_OPERATION_FAILED,
+      sequence: 7
+    })
   })
 ]);
 
@@ -291,7 +453,10 @@ export const PROPOSED_ACTION_FIXTURES = Object.freeze([
   ...proposedActionReviewFixtures,
   approveActionCommandFixture,
   rejectActionCommandFixture,
+  applyActionCommandFixture,
+  ...applyActionResultResponseFixtures,
   crossScopeDeniedResponseFixture,
+  reconnectRequiredApplyResponseFixture,
   actionProposedEventFixture,
   ...actionStatusEventFixtures
 ]);

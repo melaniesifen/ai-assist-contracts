@@ -68,6 +68,13 @@ Sources:
 - [x] M6-T1 / `OPS-004` / `SAFE-003`: Add a metadata-only cross-scope denial fixture and leak tests for proposed-action fixtures.
 - [x] M6-T1b: Rename consumer fixture import paths and exported fixture constants from milestone labels to product-generic names.
 
+## Completed Safe Apply Fixture Foundation
+
+- [x] M7-T1 / `ACTION-004`: Confirm generic apply-action command helpers require idempotency through the HTTP command envelope and do not accept client-supplied revision, hash, OAuth, or mutation authority.
+- [x] M7-T1 / `ACTION-004` / `EVT-001`: Add generic apply result fixtures for successful apply, same-key duplicate replay, conflict/no-mutation, and failed apply.
+- [x] M7-T1 / `EVT-002`: Add generic `action.status_changed` fixtures for applied, conflicted, and failed terminal states.
+- [x] M7-T1 / `AUTH-003` / `OPS-004` / `SAFE-003`: Add a metadata-only reconnect-required safe error response for apply-action.
+
 ## Pending Architecture Tasks
 
 - [ ] `REPO-001`: Decide final package structure, language, package manager, and schema tooling for this repo.

@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  HTTP_COMMAND_TYPES,
   PROPOSED_ACTION_STATUSES,
   validateContractVersionRef,
+  validateApplyActionCommandPayload,
   validateHttpCommandRequest,
   validateHttpCommandResponse,
   validateProposedActionRef,
@@ -13,10 +15,13 @@ import {
 } from "../src/index.js";
 import {
   PROPOSED_ACTION_FIXTURES,
+  applyActionCommandFixture,
+  applyActionResultResponseFixtures,
   actionStatusEventFixtures,
   approveActionCommandFixture,
   crossScopeDeniedResponseFixture,
   proposedActionReviewFixtures,
+  reconnectRequiredApplyResponseFixture,
   rejectActionCommandFixture
 } from "../fixtures/proposed-actions.fixtures.js";
 
@@ -139,6 +144,7 @@ test("proposed action fixtures cover lifecycle, decisions, status events, and de
 
   assert.equal(validateHttpCommandRequest(approveActionCommandFixture.value).valid, true);
   assert.equal(validateHttpCommandRequest(rejectActionCommandFixture.value).valid, true);
+  assert.equal(validateHttpCommandRequest(applyActionCommandFixture.value).valid, true);
   assert.equal(crossScopeDeniedResponseFixture.value.error.code, "AUTHORIZATION_DENIED");
 
   const statusEventStatuses = new Set(
@@ -149,9 +155,61 @@ test("proposed action fixtures cover lifecycle, decisions, status events, and de
     new Set([
       PROPOSED_ACTION_STATUSES.APPROVED,
       PROPOSED_ACTION_STATUSES.REJECTED,
-      PROPOSED_ACTION_STATUSES.EXPIRED
+      PROPOSED_ACTION_STATUSES.EXPIRED,
+      PROPOSED_ACTION_STATUSES.APPLIED,
+      PROPOSED_ACTION_STATUSES.CONFLICTED,
+      PROPOSED_ACTION_STATUSES.FAILED
     ])
   );
+});
+
+test("proposed action fixtures cover generic apply command and M7 result states", () => {
+  assert.equal(applyActionCommandFixture.value.commandType, HTTP_COMMAND_TYPES.APPLY_ACTION);
+  assert.equal(typeof applyActionCommandFixture.value.idempotencyKey, "string");
+  assert.equal(validateApplyActionCommandPayload(applyActionCommandFixture.value.payload).valid, true);
+
+  for (const forbiddenField of [
+    "tenantId",
+    "userId",
+    "resourceRevision",
+    "targetRange",
+    "targetAnchor",
+    "originalTextHash",
+    "oauthToken",
+    "accessToken",
+    "mutation"
+  ]) {
+    assert.equal(Object.hasOwn(applyActionCommandFixture.value.payload, forbiddenField), false, forbiddenField);
+  }
+
+  const resultStatuses = new Set(
+    applyActionResultResponseFixtures.map((fixture) => fixture.value.result.status)
+  );
+  assert.deepEqual(
+    resultStatuses,
+    new Set([
+      PROPOSED_ACTION_STATUSES.APPLIED,
+      PROPOSED_ACTION_STATUSES.CONFLICTED,
+      PROPOSED_ACTION_STATUSES.FAILED
+    ])
+  );
+
+  const replay = applyActionResultResponseFixtures.find(
+    (fixture) => fixture.name === "action-apply-result-duplicate-replay"
+  );
+  assert.equal(replay.value.result.replayed, true);
+  assert.equal(replay.value.result.operationId, "operation_apply_demo");
+
+  const conflict = applyActionResultResponseFixtures.find(
+    (fixture) => fixture.name === "action-apply-result-conflict-no-mutation"
+  );
+  assert.equal(conflict.value.result.status, PROPOSED_ACTION_STATUSES.CONFLICTED);
+  assert.equal(conflict.value.result.conflictReasonCode, "STALE_RESOURCE_REVISION");
+  assert.equal(Object.hasOwn(conflict.value.result, "operationId"), false);
+
+  assert.equal(reconnectRequiredApplyResponseFixture.value.commandType, HTTP_COMMAND_TYPES.APPLY_ACTION);
+  assert.equal(reconnectRequiredApplyResponseFixture.value.error.code, "OAUTH_RECONNECT_REQUIRED");
+  assert.equal(reconnectRequiredApplyResponseFixture.value.error.category, "OAUTH");
 });
 
 test("proposed action fixtures exclude secrets, raw document content, and decrypted payloads", () => {

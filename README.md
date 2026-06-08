@@ -213,6 +213,7 @@ The shared proposed-action fixture surface is exported as:
 ```js
 import {
   PROPOSED_ACTION_FIXTURES,
+  applyActionResultResponseFixtures,
   actionStatusEventFixtures,
   approveActionCommandFixture
 } from "@ai-assist/contracts/fixtures/proposed-actions";
