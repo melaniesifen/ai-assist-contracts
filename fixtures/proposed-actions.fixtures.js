@@ -147,7 +147,7 @@ function applyResult({
 function applyResponse({ name, flow, result }) {
   return fixture({
     name,
-    taskArea: "M7-T1 ACTION-004 EVT-001",
+    taskArea: "ACTION-004 EVT-001",
     flow,
     validator: "validateHttpCommandResponse",
     value: createHttpCommandResponse({
@@ -241,7 +241,7 @@ export const rejectActionCommandFixture = fixture({
 
 export const applyActionCommandFixture = fixture({
   name: "action-command-apply-idempotent",
-  taskArea: "M7-T1 ACTION-004 EVT-001",
+  taskArea: "ACTION-004 EVT-001",
   flow: "apply action command",
   validator: "validateHttpCommandRequest",
   value: createHttpCommandRequest({
@@ -321,7 +321,7 @@ export const crossScopeDeniedResponseFixture = fixture({
 
 export const reconnectRequiredApplyResponseFixture = fixture({
   name: "safe-error-reconnect-required-apply",
-  taskArea: "M7-T1 AUTH-003 ACTION-004 OPS-004 SAFE-003",
+  taskArea: "AUTH-003 ACTION-004 OPS-004 SAFE-003",
   flow: "apply action reconnect-required safe error",
   validator: "validateHttpCommandResponse",
   value: createHttpCommandResponse({
@@ -409,7 +409,7 @@ export const actionStatusEventFixtures = Object.freeze([
   }),
   fixture({
     name: "action-status-changed-applied",
-    taskArea: "M7-T1 EVT-002 ACTION-004",
+    taskArea: "EVT-002 ACTION-004",
     flow: "action applied status event",
     validator: "validateSessionEvent",
     value: statusEvent({
@@ -422,7 +422,7 @@ export const actionStatusEventFixtures = Object.freeze([
   }),
   fixture({
     name: "action-status-changed-conflicted",
-    taskArea: "M7-T1 EVT-002 ACTION-004",
+    taskArea: "EVT-002 ACTION-004",
     flow: "action conflicted status event",
     validator: "validateSessionEvent",
     value: statusEvent({
@@ -435,7 +435,7 @@ export const actionStatusEventFixtures = Object.freeze([
   }),
   fixture({
     name: "action-status-changed-failed",
-    taskArea: "M7-T1 EVT-002 ACTION-004",
+    taskArea: "EVT-002 ACTION-004",
     flow: "action failed status event",
     validator: "validateSessionEvent",
     value: statusEvent({

@@ -103,6 +103,8 @@ test("proposed action fixtures expose stable generic names, versions, and valida
     names.add(fixture.name);
     assert.equal(fixture.name.includes("M6"), false, fixture.name);
     assert.equal(fixture.name.includes("m6"), false, fixture.name);
+    assert.equal(/\b[Mm]\d+\b/.test(fixture.name), false, fixture.name);
+    assert.equal(/\b[Mm]\d+(?:-T\d+)?\b/.test(fixture.taskArea), false, fixture.taskArea);
 
     assert.equal(validateContractVersionRef(fixture.contractVersion).valid, true);
     assert.equal(validateSupportedContractVersion(fixture.contractVersion).valid, true);
@@ -163,7 +165,7 @@ test("proposed action fixtures cover lifecycle, decisions, status events, and de
   );
 });
 
-test("proposed action fixtures cover generic apply command and M7 result states", () => {
+test("proposed action fixtures cover generic apply command and apply result states", () => {
   assert.equal(applyActionCommandFixture.value.commandType, HTTP_COMMAND_TYPES.APPLY_ACTION);
   assert.equal(typeof applyActionCommandFixture.value.idempotencyKey, "string");
   assert.equal(validateApplyActionCommandPayload(applyActionCommandFixture.value.payload).valid, true);
